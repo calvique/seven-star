@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, MapPin, Phone, Mail, Clock, Send, Loader, CheckCircle, AlertCircle, Building, Users, GraduationCap, Shield, Star, MapPin as MapPinIcon, Phone as PhoneIcon, Mail as MailIcon } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Mail, Clock, Send, Loader, CheckCircle, AlertCircle, Building, Users, GraduationCap, Shield, Star, Globe2, PlayCircle, Camera, MapPin as MapPinIcon, Phone as PhoneIcon, Mail as MailIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button, Input, Textarea, Select } from '../../components/ui';
 import { useSettings } from '../../context/SettingsContext';
@@ -311,21 +311,21 @@ export function Contact() {
                     <h3 className="font-heading font-semibold text-lg text-gray-900 mb-4">Follow Us</h3>
                     <div className="space-y-3">
                       <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
-                        <Facebook className="w-6 h-6 text-blue-600" />
+                        <Globe2 className="w-6 h-6 text-blue-600" />
                         <div>
                           <p className="font-medium text-gray-900">Facebook</p>
                           <p className="text-sm text-gray-500">@sevenstar.boarding</p>
                         </div>
                       </a>
                       <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-red-50 hover:bg-red-100 transition-colors">
-                        <Youtube className="w-6 h-6 text-red-600" />
+                        <PlayCircle className="w-6 h-6 text-red-600" />
                         <div>
                           <p className="font-medium text-gray-900">YouTube</p>
                           <p className="text-sm text-gray-500">Seven Star School</p>
                         </div>
                       </a>
                       <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-pink-50 hover:bg-pink-100 transition-colors">
-                        <Instagram className="w-6 h-6 text-pink-600" />
+                        <Camera className="w-6 h-6 text-pink-600" />
                         <div>
                           <p className="font-medium text-gray-900">Instagram</p>
                           <p className="text-sm text-gray-500">@sevenstarschool</p>

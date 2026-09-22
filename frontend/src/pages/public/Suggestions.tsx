@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, CheckCircle2, Lightbulb, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge, Button, Card, Input, Select, Textarea } from '../../components/ui';

@@ -520,17 +520,14 @@ export interface Pagination {
   pages: number;
 }
 
-export interface PaginatedResponse<T> {
+export interface PaginatedResponse<T = any> {
   success: boolean;
-  data: {
-    [key: string]: T[];
-    pagination: Pagination;
-  };
+  data: any;
 }
 
-export interface SingleResponse<T> {
+export interface SingleResponse<T = any> {
   success: boolean;
-  data: { [key: string]: T };
+  data: T;
   message?: string;
 }
 

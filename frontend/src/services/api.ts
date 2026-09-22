@@ -1,4 +1,5 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import type { User, PaginatedResponse, SingleResponse, SchoolSettings } from '../types';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
@@ -128,8 +129,9 @@ class ApiService {
     return this.client.post('/auth/resend-verification', { email });
   }
 
-  private setAuth(data: { user: User; accessToken: string }) {
-    localStorage.setItem('accessToken', data.accessToken);
+  private setAuth(data: { user: User; accessToken: string | null }) {
+    if (!data.accessToken) return;
+    if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('user', JSON.stringify(data.user));
     // refreshToken is set via httpOnly cookie
   }
@@ -196,7 +198,7 @@ class ApiService {
 
   // Public endpoints (no auth required)
   async getPublicSettings(): Promise<SchoolSettings> {
-    const response = await this.client.get<SingleResponse<{ settings: SchoolSettings }>>('/public/settings');
+    const response = await this.client.get<{ success: boolean; data: { settings: SchoolSettings } }>('/public/settings');
     return response.data.data?.settings || {};
   }
 

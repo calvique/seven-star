@@ -139,6 +139,3 @@ export function TeacherDashboard() {
     </>
   );
 }
-
-// Need to import useState
-import { useState } from 'react';
