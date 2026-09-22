@@ -19,6 +19,9 @@ export function Login() {
   const [error, setError] = useState<string | null>(null);
 
   const schoolName = getSettingValue('general', 'school.name', 'Seven Star English Boarding School');
+  const requestedRole = new URLSearchParams(location.search).get('role') as 'admin' | 'teacher' | 'student' | null;
+  const portalLabel = requestedRole === 'admin' ? 'Admin Portal' : requestedRole === 'teacher' ? 'Teacher Portal' : requestedRole === 'student' ? 'Student Portal' : 'School Portal';
+  const portalDescription = requestedRole === 'admin' ? 'Sign in to manage the school website and administration.' : requestedRole === 'teacher' ? 'Sign in to access teaching and result-entry tools.' : requestedRole === 'student' ? 'Sign in to access your student portal.' : 'Sign in to your school portal.';
   const tagline = getSettingValue('general', 'school.tagline', 'Official school information and updates');
 
   const validateForm = () => {
@@ -59,8 +62,8 @@ export function Login() {
               <SchoolLogo size="lg" />
               <div className="text-left"><h1 className="font-heading font-bold text-xl text-gray-900">{schoolName}</h1><p className="text-xs text-gray-500">{tagline}</p></div>
             </Link>
-            <h2 className="font-heading font-bold text-3xl text-gray-900 mt-7">Welcome back</h2>
-            <p className="text-gray-600 mt-2">Sign in to your school portal.</p>
+            <h2 className="font-heading font-bold text-3xl text-gray-900 mt-7">{portalLabel}</h2>
+            <p className="text-gray-600 mt-2">{portalDescription}</p>
           </div>
 
           <Card className="bg-white/95 backdrop-blur-sm">

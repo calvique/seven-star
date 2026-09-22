@@ -144,7 +144,7 @@ export function Header() {
               />
             ) : (
               <>
-                <Link to="/login" className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">Login</Link>
+                <LoginMenu />
                 <Link to="/admissions" className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm">Get Started</Link>
               </>
             )}
@@ -180,7 +180,7 @@ export function Header() {
                 </button>
               ) : (
                 <>
-                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg border-2 border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition-colors">Login</Link>
+                  <MobileLoginMenu onClose={() => setIsMobileMenuOpen(false)} />
                   <Link to="/admissions" onClick={() => setIsMobileMenuOpen(false)} className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors">Get Started</Link>
                 </>
               )}
@@ -189,6 +189,103 @@ export function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+function LoginMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  const options = [
+    { label: 'Admin Login', role: 'admin', icon: '🛡️' },
+    { label: "Teacher's Login", role: 'teacher', icon: '👨‍🏫' },
+    { label: 'Student Login', role: 'student', icon: '🎓' },
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) setIsOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen((value) => !value)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        className="inline-flex items-center gap-1.5 justify-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+      >
+        Login
+        <ChevronDown className={clsx('w-4 h-4 transition-transform', isOpen && 'rotate-180')} />
+      </button>
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-gray-100 bg-white p-2 shadow-xl z-50 animate-slide-down" role="menu">
+          <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">School Portal</div>
+          {options.map((option) => (
+            <Link
+              key={option.role}
+              to={`/login?role=${option.role}`}
+              onClick={() => setIsOpen(false)}
+              role="menuitem"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+            >
+              <span className="text-base" aria-hidden="true">{option.icon}</span>
+              <span>{option.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileLoginMenu({ onClose }: { onClose: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const options = [
+    { label: 'Admin Login', role: 'admin', icon: '🛡️' },
+    { label: "Teacher's Login", role: 'teacher', icon: '👨‍🏫' },
+    { label: 'Student Login', role: 'student', icon: '🎓' },
+  ];
+
+  return (
+    <div className="w-full">
+      <button
+        type="button"
+        onClick={() => setIsOpen((value) => !value)}
+        aria-expanded={isOpen}
+        className="flex w-full items-center justify-between px-4 py-3 rounded-lg border-2 border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition-colors"
+      >
+        <span>Login</span>
+        <ChevronDown className={clsx('w-4 h-4 transition-transform', isOpen && 'rotate-180')} />
+      </button>
+      {isOpen && (
+        <div className="mt-2 rounded-xl border border-gray-100 bg-white p-2 shadow-sm">
+          {options.map((option) => (
+            <Link
+              key={option.role}
+              to={`/login?role=${option.role}`}
+              onClick={onClose}
+              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+            >
+              <span className="text-base" aria-hidden="true">{option.icon}</span>
+              <span>{option.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
