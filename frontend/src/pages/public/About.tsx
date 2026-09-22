@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { GraduationCap, Award, Users, BookOpen, MapPin, Calendar, Target, Heart } from 'lucide-react';
+import { GraduationCap, Award, Users, BookOpen, MapPin, Calendar, Target, Heart, Phone } from 'lucide-react';
 import { Card, Badge } from '../../components/ui';
 import { useSettings } from '../../context/SettingsContext';
 

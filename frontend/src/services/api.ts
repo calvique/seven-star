@@ -129,7 +129,7 @@ class ApiService {
     return this.client.post('/auth/resend-verification', { email });
   }
 
-  private setAuth(data: { user: User; accessToken: string | null }) {
+  private setAuth(data: any) {
     if (!data.accessToken) return;
     if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('user', JSON.stringify(data.user));
@@ -199,7 +199,7 @@ class ApiService {
   // Public endpoints (no auth required)
   async getPublicSettings(): Promise<SchoolSettings> {
     const response = await this.client.get<{ success: boolean; data: { settings: SchoolSettings } }>('/public/settings');
-    return response.data.data?.settings || {};
+    return response.data?.data?.settings || response.data?.settings || {};
   }
 
   async getPublishedNotices(params?: any) {
