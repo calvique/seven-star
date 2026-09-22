@@ -14,6 +14,7 @@ export { Notices } from './public/Notices';
 export { Admissions } from './public/Admissions';
 export { Contact } from './public/Contact';
 export { Downloads } from './public/Downloads';
+export { Suggestions } from './public/Suggestions';
 
 // Auth Pages
 export { Login } from './auth/Login';

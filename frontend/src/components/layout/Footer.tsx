@@ -1,32 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { clsx } from 'clsx';
-import { Facebook, Youtube, Instagram, Twitter, MapPin, Phone, Mail, GraduationCap, Award, Users, BookOpen } from 'lucide-react';
+import { Facebook, Youtube, Instagram, Twitter, MapPin, Phone, Mail, MessageSquare } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
+import { SchoolLogo } from '../branding/SchoolLogo';
+import { SCHOOL_FACEBOOK_URL } from '../../config/branding';
 
 export function Footer() {
   const { getSettingValue } = useSettings();
 
   const schoolName = getSettingValue('general', 'school.name', 'Seven Star English Boarding School');
-  const tagline = getSettingValue('general', 'school.tagline', 'Shaping Future Leaders');
-  const established = getSettingValue('general', 'school.established', '2063 B.S.');
+  const tagline = getSettingValue('general', 'school.tagline', 'Official school information and updates');
   const address = getSettingValue('general', 'school.address', 'Devdaha-2, Rupandehi, Nepal');
-  const phone = getSettingValue('general', 'school.phone', '9857078448');
-  const email = getSettingValue('general', 'school.email', 'sevenstar.school2063@gmail.com');
-  const officeHours = getSettingValue('general', 'school.officeHours', 'Sun - Fri: 9:00 AM - 5:00 PM');
-  const facebookUrl = getSettingValue('social', 'social.facebook', 'https://www.facebook.com/sevenstar.boarding');
+  const phone = getSettingValue('general', 'school.phone', '');
+  const email = getSettingValue('general', 'school.email', '');
+  const facebookUrl = getSettingValue('social', 'social.facebook', SCHOOL_FACEBOOK_URL);
 
   const footerLinks = {
     explore: [
       { label: 'About Us', path: '/about' },
       { label: 'Gallery', path: '/gallery' },
-      { label: 'Testimonials', path: '/testimonials' },
+      { label: 'Suggestions', path: '/suggestions' },
       { label: 'Weekly ECA', path: '/activities' },
       { label: 'Sports', path: '/activities?category=sports' },
       { label: 'Achievements', path: '/achievements' },
     ],
     school: [
-      { label: 'Student Life', path: '/student-life' },
+      { label: 'Student Life', path: '/activities' },
       { label: 'Facilities', path: '/facilities' },
       { label: 'Admissions', path: '/admissions' },
       { label: 'Academics', path: '/academics' },
@@ -42,12 +41,6 @@ export function Footer() {
     ],
   };
 
-  const stats = [
-    { icon: Users, value: '900+', label: 'Students' },
-    { icon: Award, value: '100%', label: 'SEE Pass Rate' },
-    { icon: BookOpen, value: '80+', label: 'Qualified Teachers' },
-    { icon: Award, value: '19+', label: 'Years Excellence' },
-  ];
 
   return (
     <footer className="bg-gray-900 text-white" role="contentinfo">
@@ -56,29 +49,21 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6" aria-label={`${schoolName} Home`}>
-              <div className="w-12 h-12 bg-primary-500 rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 text-white" />
-              </div>
+              <SchoolLogo size="md" />
               <div>
                 <h2 className="font-heading font-bold text-xl text-white">{schoolName}</h2>
                 <p className="text-secondary-400 text-sm">{tagline}</p>
               </div>
             </Link>
             <p className="text-gray-400 text-sm mb-6 max-w-xs">
-              A distinguished private educational institution located in Devdaha Municipality-2, Rupandehi District, Lumbini Province, Nepal. Committed to providing quality education since 2063 B.S.
+              Official school information, admissions, notices, activities, gallery and results for the Seven Star school community.
             </p>
             <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
               <MapPin className="w-4 h-4 text-secondary-400" />
               <span>{address}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
-              <Phone className="w-4 h-4 text-secondary-400" />
-              <a href={`tel:${phone}`} className="hover:text-white transition-colors">{phone}</a>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-400 mb-6">
-              <Mail className="w-4 h-4 text-secondary-400" />
-              <a href={`mailto:${email}`} className="hover:text-white transition-colors">{email}</a>
-            </div>
+            {phone && <div className="flex items-center gap-2 text-sm text-gray-400 mb-2"><Phone className="w-4 h-4 text-secondary-400" /><a href={`tel:${phone}`} className="hover:text-white transition-colors">{phone}</a></div>}
+            {email && <div className="flex items-center gap-2 text-sm text-gray-400 mb-6"><Mail className="w-4 h-4 text-secondary-400" /><a href={`mailto:${email}`} className="hover:text-white transition-colors">{email}</a></div>}
             <div className="flex items-center gap-4">
               <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-secondary-500 transition-colors" aria-label="Facebook">
                 <Facebook className="w-5 h-5" />
@@ -173,23 +158,8 @@ export function Footer() {
             <p className="text-gray-400 text-sm">
               © {new Date().getFullYear()} {schoolName}. All rights reserved.
             </p>
-            <p className="text-gray-500 text-sm">
-              Designed with pride for Seven Star E.B.S.S.
-            </p>
-            <div className="flex items-center gap-6 text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                <Mail className="w-3 h-3" />
-                {email}
-              </span>
-              <span className="flex items-center gap-1">
-                <Phone className="w-3 h-3" />
-                {phone}
-              </span>
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {address}
-              </span>
-            </div>
+            <div className="flex items-center gap-3 text-gray-500 text-sm"><MessageSquare className="w-4 h-4" /><Link to="/suggestions" className="hover:text-white">Send a suggestion</Link></div>
+            <div className="flex items-center gap-6 text-sm text-gray-500"><span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{address}</span></div>
           </div>
         </div>
       </div>

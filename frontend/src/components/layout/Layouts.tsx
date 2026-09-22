@@ -11,6 +11,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { Avatar, Dropdown } from '../ui';
 import { useAuth } from '../../context/AuthContext';
+import { SchoolLogo } from '../branding/SchoolLogo';
 
 export function MainLayout() {
   return (
@@ -30,9 +31,7 @@ export function AuthLayout() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-7 h-7 text-white" />
-            </div>
+            <SchoolLogo size="md" />
             <div>
               <h1 className="font-heading font-bold text-xl text-gray-900">Seven Star</h1>
               <p className="text-xs text-gray-500">English Boarding School</p>
@@ -103,9 +102,7 @@ export function AdminLayout() {
       >
         {/* Logo */}
         <div className={clsx('flex items-center gap-3 p-4 border-b border-gray-100', !sidebarOpen && 'justify-center')}>
-          <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <GraduationCap className="w-6 h-6 text-white" />
-          </div>
+          <SchoolLogo size="sm" />
           {sidebarOpen && (
             <div>
               <h1 className="font-heading font-bold text-lg text-gray-900">Seven Star</h1>
@@ -228,9 +225,7 @@ export function TeacherLayout() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/teacher" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
+              <SchoolLogo size="sm" />
               <span className="font-heading font-semibold text-xl text-gray-900">Teacher Portal</span>
             </Link>
           </div>

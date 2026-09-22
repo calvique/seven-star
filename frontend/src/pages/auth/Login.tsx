@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader, AlertCircle, CheckCircle, GraduationCap, Shield, Star, Users, BookOpen } from 'lucide-react';
 import { Card, Button, Input, Badge } from '../../components/ui';
+import { SchoolLogo } from '../../components/branding/SchoolLogo';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 
@@ -59,9 +60,7 @@ export function Login() {
           {/* Logo & Brand */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center gap-3 mb-6">
-              <div className="w-14 h-14 bg-primary-600 rounded-xl flex items-center justify-center">
-                <GraduationCap className="w-8 h-8 text-white" />
-              </div>
+              <SchoolLogo size="lg" />
               <div className="text-left">
                 <h1 className="font-heading font-bold text-xl text-gray-900">{schoolName}</h1>
                 <p className="text-xs text-gray-500">{tagline}</p>

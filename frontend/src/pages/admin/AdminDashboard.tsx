@@ -5,6 +5,7 @@ import { LayoutDashboard, Users, GraduationCap, UserGroup, Building, BookOpen, F
 import { Card, Badge, Button, Avatar, Dropdown, Table } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
+import { SchoolLogo } from '../../components/branding/SchoolLogo';
 
 export function AdminDashboard() {
   const { getSettingValue } = useSettings();
@@ -72,9 +73,7 @@ export function AdminDashboard() {
           `}
         >
           <div className={`flex items-center gap-3 p-4 border-b border-gray-100 ${!sidebarOpen && 'justify-center'}`}>
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
+            <SchoolLogo size="sm" />
             {sidebarOpen && (
               <div>
                 <h1 className="font-heading font-bold text-lg text-gray-900">{schoolName}</h1>

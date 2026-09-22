@@ -14,7 +14,7 @@ import { MainLayout, AuthLayout, AdminLayout, TeacherLayout } from './components
 import { 
   Home, About, ChairmanMessage, PrincipalMessage, MissionVision, History,
   Academics, Facilities, Gallery, Activities, Achievements, Notices,
-  Admissions, Contact, Downloads
+  Admissions, Contact, Downloads, Suggestions
 } from './pages/public';
 
 // Auth Pages
@@ -106,6 +106,7 @@ function App() {
                     <Route path="/admissions" element={<Admissions />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/downloads" element={<Downloads />} />
+                    <Route path="/suggestions" element={<Suggestions />} />
                     
                     {/* Results Portal - Public Access */}
                     <Route path="/results" element={<ResultSearch />} />

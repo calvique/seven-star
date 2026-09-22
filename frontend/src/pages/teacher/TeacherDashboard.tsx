@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate, Outlet } from 'react-router-dom';
 import { LayoutDashboard, GraduationCap, Users, BookOpen, FileText, Settings, LogOut, Menu, X, ChevronDown, Bell, Award, ClipboardList, Calendar, User, ArrowRight } from 'lucide-react';
 import { Card, Badge, Button, Avatar, Dropdown, Table } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
+import { SchoolLogo } from '../../components/branding/SchoolLogo';
 
 export function TeacherDashboard() {
   const { getSettingValue } = useSettings();
@@ -48,9 +49,7 @@ export function TeacherDashboard() {
         {/* Sidebar */}
         <aside className="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col">
           <div className="flex items-center gap-3 p-4 border-b border-gray-100">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
+            <SchoolLogo size="sm" />
             <div>
               <h1 className="font-heading font-bold text-lg text-gray-900">{schoolName}</h1>
               <p className="text-xs text-gray-500">Teacher Portal</p>

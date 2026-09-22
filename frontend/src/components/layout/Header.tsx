@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { Menu, X, ChevronDown, GraduationCap, MapPin, Phone, Mail, Facebook, Youtube, Instagram } from 'lucide-react';
+import { Menu, X, ChevronDown, MapPin, Phone, Mail, Facebook, Youtube, Instagram } from 'lucide-react';
 import { Avatar, Dropdown, Badge, Button } from '../ui';
+import { SchoolLogo } from '../branding/SchoolLogo';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 
@@ -11,7 +12,7 @@ export function Header() {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user, isAuthenticated, logout, login } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { getSettingValue } = useSettings();
 
   useEffect(() => {
@@ -102,9 +103,7 @@ export function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3" aria-label="Seven Star School Home">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
+            <SchoolLogo size="md" />
             <div className="hidden sm:block">
               <h1 className="font-heading font-bold text-xl text-gray-900">Seven Star</h1>
               <p className="text-xs text-gray-500">English Boarding School</p>
@@ -151,8 +150,8 @@ export function Header() {
               />
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => login('','')}>Login</Button>
-                <Button size="sm" onClick={() => login('','')}>Get Started</Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Login</Button>
+                <Button size="sm" onClick={() => navigate('/admissions')}>Apply for Admission</Button>
               </>
             )}
           </div>
@@ -187,8 +186,8 @@ export function Header() {
                 </button>
               ) : (
                 <>
-                  <Button variant="outline" className="w-full" onClick={() => { login('',''); setIsMobileMenuOpen(false); }}>Login</Button>
-                  <Button className="w-full" onClick={() => { login('',''); setIsMobileMenuOpen(false); }}>Get Started</Button>
+                  <Button variant="outline" className="w-full" onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}>Login</Button>
+                  <Button className="w-full" onClick={() => { navigate('/admissions'); setIsMobileMenuOpen(false); }}>Apply for Admission</Button>
                 </>
               )}
             </div>
