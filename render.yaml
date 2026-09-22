@@ -1,10 +1,13 @@
 services:
   - type: web
-    name: seven-star-api
+    name: seven-star-school
     runtime: node
-    rootDir: backend
-    buildCommand: npm ci --include=dev && npm run build
-    startCommand: npm start
+    buildCommand: >-
+      npm --prefix frontend ci --include=dev &&
+      npm --prefix backend ci --include=dev &&
+      npm --prefix frontend run build &&
+      npm --prefix backend run build
+    startCommand: npm --prefix backend start
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
@@ -13,12 +16,6 @@ services:
       - key: PORT
         value: 10000
       - key: MONGODB_URI
-        sync: false
-      - key: API_URL
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
-      - key: FRONTEND_URLS
         sync: false
       - key: JWT_SECRET
         sync: false
@@ -34,20 +31,5 @@ services:
         value: School Administrator
       - key: ADMIN_PASSWORD
         sync: false
-
-  - type: web
-    name: seven-star-web
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm ci --include=dev && npm run build
-    staticPublishPath: dist
-    autoDeploy: true
-    envVars:
-      - key: VITE_API_URL
+      - key: API_URL
         sync: false
-      - key: VITE_SITE_URL
-        sync: false
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html

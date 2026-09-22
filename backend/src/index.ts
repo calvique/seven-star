@@ -13,6 +13,7 @@ import routes from './routes';
 import { Setting } from './models';
 
 const uploadRoot = path.resolve(config.upload.path);
+const frontendDist = path.resolve(__dirname, '../../frontend/dist');
 
 const app = express();
 
@@ -56,6 +57,19 @@ app.get('/api/health', asyncHandler(async (req: Request, res: Response) => {
   });
 }));
 
+app.get('/sitemap.xml', (req: Request, res: Response) => {
+  const base = `${req.protocol}://${req.get('host')}`;
+  const routes = ['/', '/about', '/about/chairman', '/about/principal', '/about/mission-vision', '/about/history', '/academics', '/facilities', '/gallery', '/activities', '/achievements', '/notices', '/admissions', '/contact', '/downloads', '/suggestions', '/results'];
+  const today = new Date().toISOString().slice(0, 10);
+  const body = routes.map((url) => `  <url><loc>${base}${url}</loc><lastmod>${today}</lastmod></url>`).join('\n');
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>`);
+});
+
+app.get('/robots.txt', (req: Request, res: Response) => {
+  const base = `${req.protocol}://${req.get('host')}`;
+  res.type('text/plain').send(`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /teacher/\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: ${base}/sitemap.xml\n`);
+});
+
 app.get('/api/public/settings', asyncHandler(async (req: Request, res: Response) => {
   const settings = await Setting.find({ isPublic: true }).sort({ group: 1, order: 1 });
   const grouped = settings.reduce((acc, setting) => {
@@ -71,9 +85,18 @@ routes.forEach(({ path, router }) => {
 });
 
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found`,
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      success: false,
+      message: `Route ${req.originalUrl} not found`,
+    });
+  }
+
+  return res.sendFile(path.join(frontendDist, 'index.html'), (error) => {
+    if (error) {
+      console.error('Frontend index.html could not be served:', error);
+      res.status(500).send('Website frontend is not built.');
+    }
   });
 });
 
