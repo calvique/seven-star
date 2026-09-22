@@ -199,7 +199,7 @@ class ApiService {
   // Public endpoints (no auth required)
   async getPublicSettings(): Promise<SchoolSettings> {
     const response = await this.client.get<{ success: boolean; data: { settings: SchoolSettings } }>('/public/settings');
-    return response.data?.data?.settings || response.data?.settings || {};
+    return response.data?.data?.settings || {};
   }
 
   async getPublishedNotices(params?: any) {

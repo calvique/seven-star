@@ -539,6 +539,7 @@ export interface ApiError {
 
 // School Settings (Public)
 export interface SchoolSettings {
+  [group: string]: Setting[] | undefined;
   general?: Setting[];
   contact?: Setting[];
   social?: Setting[];

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { Menu, X, ChevronDown, MapPin, Phone, Mail, Facebook, Youtube, Instagram } from 'lucide-react';
+import { Menu, X, ChevronDown, MapPin, Phone, Mail } from 'lucide-react';
 import { Avatar, Dropdown, Badge, Button } from '../ui';
 import { SchoolLogo } from '../branding/SchoolLogo';
 import { useAuth } from '../../context/AuthContext';
@@ -87,13 +87,13 @@ export function Header() {
         </div>
         <div className="flex items-center gap-4">
           <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-secondary-200 transition-colors" aria-label="Facebook">
-            <Facebook className="w-5 h-5" />
+            <span className="text-xs font-bold">f</span>
           </a>
-          <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-secondary-200 transition-colors" aria-label="YouTube">
-            <Youtube className="w-5 h-5" />
+          <a href="/" className="hover:text-secondary-200 transition-colors" aria-label="YouTube">
+            <span className="text-xs font-bold">▶</span>
           </a>
-          <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-secondary-200 transition-colors" aria-label="Instagram">
-            <Instagram className="w-5 h-5" />
+          <a href="/" className="hover:text-secondary-200 transition-colors" aria-label="Instagram">
+            <span className="text-xs font-bold">ig</span>
           </a>
         </div>
       </div>

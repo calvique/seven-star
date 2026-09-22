@@ -184,7 +184,7 @@ export function Admissions() {
         throw new Error('Please enter the academic year before submitting.');
       }
 
-      const res = await api.post('/admissions', payload);
+      const res = await api.post<any>('/admissions', payload);
       if (res.success) {
         setSubmitted(true);
         setAdmissionResult(res.data.admission);

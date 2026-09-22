@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, BookOpen, GraduationCap, Award, Users, Target, Clock, CheckCircle, Star, Building2, FlaskConical, Music, Dumbbell, Globe } from 'lucide-react';
+import { ArrowRight, ArrowLeft, BookOpen, GraduationCap, Award, Users, Target, Clock, CheckCircle, Star, Building2, FlaskConical, Music, Dumbbell, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Card, Badge, Tabs, TabPanel } from '../../components/ui';
+import { Button, Card, Badge, Tabs, TabPanel } from '../../components/ui';
 import { useSettings } from '../../context/SettingsContext';
 import { api } from '../../services/api';
 import type { Class, Subject } from '../../types';
