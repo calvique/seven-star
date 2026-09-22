@@ -1,0 +1,16 @@
+export { Home } from "./Home";
+export { About } from "./About";
+export { ChairmanMessage } from "./ChairmanMessage";
+export { PrincipalMessage } from "./PrincipalMessage";
+export { MissionVision } from "./MissionVision";
+export { History } from "./History";
+export { Academics } from "./Academics";
+export { Facilities } from "./Facilities";
+export { GalleryPage as Gallery } from "./Gallery";
+export { Activities } from "./Activities";
+export { Achievements } from "./Achievements";
+export { Notices } from "./Notices";
+export { Admissions } from "./Admissions";
+export { Contact } from "./Contact";
+export { Downloads } from "./Downloads";
+export { Suggestions } from './Suggestions';

@@ -1,0 +1,17 @@
+export * from './User';
+export * from './Teacher';
+export * from './Student';
+export * from './Class';
+export * from './Subject';
+export * from './Exam';
+export * from './Result';
+export * from './Notice';
+export * from './Gallery';
+export * from './Admission';
+export * from './Download';
+export * from './Activity';
+export * from './Achievement';
+export * from './Facility';
+export * from './Suggestion';
+export * from './Contact';
+export * from './Setting';export * from './Admin';
