@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageSquare } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import { SchoolLogo } from '../branding/SchoolLogo';
 import { SCHOOL_FACEBOOK_URL } from '../../config/branding';
