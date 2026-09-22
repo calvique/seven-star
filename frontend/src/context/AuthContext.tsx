@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<User | null>;
   register: (data: { name: string; email: string; password: string; phone?: string; role?: string }) => Promise<{ pendingApproval?: boolean }>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
@@ -54,7 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await api.login({ email, password, rememberMe });
     if (response.success && response.data?.user) {
       setUser(response.data.user);
+      return response.data.user;
     }
+    return null;
   };
 
   const register = async (data: { name: string; email: string; password: string; phone?: string; role?: string }) => {

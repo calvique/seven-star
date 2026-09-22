@@ -109,7 +109,7 @@ export function Home() {
               <div className="flex flex-wrap gap-4">
                 <Link to="/admissions">
                   <Button size="lg" className="gap-2">
-                    Apply for Admission
+                    Get Started
                     <ArrowRight className="w-5 h-5" />
                   </Button>
                 </Link>

@@ -128,30 +128,24 @@ export function Header() {
                   </button>
                 }
                 options={[
-                  { value: 'profile', label: 'My Profile', icon: <span className="w-4 h-4">👤</span> },
-                  { value: 'dashboard', label: user?.role === 'teacher' ? 'Teacher Dashboard' : 'Student Dashboard', icon: <span className="w-4 h-4">📊</span> },
+                  { value: 'dashboard', label: user?.role === 'admin' ? 'Admin Dashboard' : user?.role === 'teacher' ? 'Teacher Dashboard' : 'My Portal', icon: <span className="w-4 h-4">📊</span> },
                   { value: 'results', label: 'View Results', icon: <span className="w-4 h-4">📝</span> },
-                  { value: 'settings', label: 'Settings', icon: <span className="w-4 h-4">⚙️</span> },
                   { value: 'logout', label: 'Logout', icon: <span className="w-4 h-4">🚪</span>, danger: true },
                 ]}
                 onSelect={(value) => {
                   if (value === 'logout') {
                     logout();
-                  } else if (value === 'profile') {
-                    if (location.pathname !== '/profile') navigate('/profile');
                   } else if (value === 'dashboard') {
-                    navigate(user?.role === 'teacher' ? '/teacher' : '/student');
+                    navigate(user?.role === 'admin' ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard');
                   } else if (value === 'results') {
                     navigate('/results');
-                  } else if (value === 'settings') {
-                    navigate('/settings');
                   }
                 }}
               />
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Login</Button>
-                <Button size="sm" onClick={() => navigate('/admissions')}>Apply for Admission</Button>
+                <Link to="/login" className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">Login</Link>
+                <Link to="/admissions" className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm">Get Started</Link>
               </>
             )}
           </div>
@@ -186,8 +180,8 @@ export function Header() {
                 </button>
               ) : (
                 <>
-                  <Button variant="outline" className="w-full" onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}>Login</Button>
-                  <Button className="w-full" onClick={() => { navigate('/admissions'); setIsMobileMenuOpen(false); }}>Apply for Admission</Button>
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg border-2 border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition-colors">Login</Link>
+                  <Link to="/admissions" onClick={() => setIsMobileMenuOpen(false)} className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors">Get Started</Link>
                 </>
               )}
             </div>

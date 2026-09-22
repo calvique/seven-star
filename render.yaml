@@ -3,7 +3,7 @@ services:
     name: seven-star-api
     runtime: node
     rootDir: backend
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
@@ -39,7 +39,7 @@ services:
     name: seven-star-web
     runtime: static
     rootDir: frontend
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     staticPublishPath: dist
     autoDeploy: true
     envVars:
