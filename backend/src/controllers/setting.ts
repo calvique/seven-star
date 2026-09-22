@@ -118,28 +118,31 @@ export const deleteSetting = asyncHandler(async (req: AuthRequest, res: Response
 
 export const seedDefaultSettings = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
   const defaults = [
+    // General
     { key: 'school.name', value: 'Seven Star English Boarding School', group: 'general', label: 'School Name', type: 'string', isPublic: true, order: 1 },
-    { key: 'school.tagline', value: 'Official school information and updates', group: 'general', label: 'School Tagline', type: 'string', isPublic: true, order: 2 },
-    { key: 'school.address', value: 'Devdaha-2, Rupandehi, Nepal', group: 'general', label: 'School Address', type: 'string', isPublic: true, order: 3 },
-    { key: 'school.phone', value: '', group: 'general', label: 'Phone Number', type: 'string', isPublic: true, order: 4 },
-    { key: 'school.email', value: '', group: 'general', label: 'Email Address', type: 'string', isPublic: true, order: 5 },
-    { key: 'school.officeHours', value: '', group: 'general', label: 'Office Hours', type: 'string', isPublic: true, order: 6 },
-    { key: 'about.school.intro', value: 'Official school background and institutional information is maintained by the administration.', group: 'about', label: 'About Intro', type: 'string', isPublic: true, order: 1 },
-    { key: 'about.school.mission', value: 'The school administration can publish its official mission statement here.', group: 'about', label: 'Mission', type: 'string', isPublic: true, order: 2 },
-    { key: 'about.school.vision', value: 'The school administration can publish its official vision statement here.', group: 'about', label: 'Vision', type: 'string', isPublic: true, order: 3 },
-    { key: 'about.school.history', value: 'The school administration can publish the official history of the school from the CMS.', group: 'about', label: 'History', type: 'string', isPublic: true, order: 4 },
-    { key: 'about.chairman.message', value: 'The official chairman message will be published here by the administration.', group: 'about', label: 'Chairman Message', type: 'string', isPublic: true, order: 5 },
-    { key: 'about.principal.message', value: 'The official principal message will be published here by the administration.', group: 'about', label: 'Principal Message', type: 'string', isPublic: true, order: 6 },
-    { key: 'contact.principal.name', value: '', group: 'contact', label: 'Principal Name', type: 'string', isPublic: true, order: 1 },
-    { key: 'contact.principal.phone', value: '', group: 'contact', label: 'Principal Phone', type: 'string', isPublic: true, order: 2 },
-    { key: 'contact.principal.email', value: '', group: 'contact', label: 'Principal Email', type: 'string', isPublic: true, order: 3 },
-    { key: 'contact.chairman.name', value: '', group: 'contact', label: 'Chairman Name', type: 'string', isPublic: true, order: 4 },
-    { key: 'contact.chairman.phone', value: '', group: 'contact', label: 'Chairman Phone', type: 'string', isPublic: true, order: 5 },
+    { key: 'school.tagline', value: 'Shaping Future Leaders', group: 'general', label: 'School Tagline', type: 'string', isPublic: true, order: 2 },
+    { key: 'school.established', value: '2063 B.S.', group: 'general', label: 'Established Year', type: 'string', isPublic: true, order: 3 },
+    { key: 'school.address', value: 'Devdaha-2, Rupandehi, Nepal', group: 'general', label: 'School Address', type: 'string', isPublic: true, order: 4 },
+    { key: 'school.phone', value: '9857078448', group: 'general', label: 'Phone Number', type: 'string', isPublic: true, order: 5 },
+    { key: 'school.email', value: 'sevenstar.school2063@gmail.com', group: 'general', label: 'Email Address', type: 'string', isPublic: true, order: 6 },
+    { key: 'school.officeHours', value: 'Sun - Fri: 9:00 AM - 5:00 PM', group: 'general', label: 'Office Hours', type: 'string', isPublic: true, order: 7 },
+    
+    // Contact
+    { key: 'contact.principal.name', value: 'Tikaram Chapagain', group: 'contact', label: 'Principal Name', type: 'string', isPublic: true, order: 1 },
+    { key: 'contact.principal.phone', value: '9857078448', group: 'contact', label: 'Principal Phone', type: 'string', isPublic: true, order: 2 },
+    { key: 'contact.principal.email', value: 'tikaramchapain238@gmail.com', group: 'contact', label: 'Principal Email', type: 'string', isPublic: true, order: 3 },
+    { key: 'contact.chairman.name', value: 'Prajapati Sapkota', group: 'contact', label: 'Chairman Name', type: 'string', isPublic: true, order: 4 },
+    { key: 'contact.chairman.phone', value: '9857024293', group: 'contact', label: 'Chairman Phone', type: 'string', isPublic: true, order: 5 },
+    { key: 'contact.vicePrincipal.name', value: 'Mohan Giri', group: 'contact', label: 'Vice Principal Name', type: 'string', isPublic: true, order: 6 },
+    { key: 'contact.vicePrincipal.phone', value: '9851206206', group: 'contact', label: 'Vice Principal Phone', type: 'string', isPublic: true, order: 7 },
+    
+    // Social
     { key: 'social.facebook', value: 'https://www.facebook.com/sevenstar.boarding', group: 'social', label: 'Facebook URL', type: 'string', isPublic: true, order: 1 },
-    { key: 'seo.metaTitle', value: 'Seven Star English Boarding School', group: 'seo', label: 'Default Meta Title', type: 'string', isPublic: true, order: 1 },
-    { key: 'seo.metaDescription', value: 'Official website of Seven Star English Boarding School, Devdaha-2, Rupandehi, Nepal.', group: 'seo', label: 'Default Meta Description', type: 'string', isPublic: true, order: 2 },
-    { key: 'seo.description', value: 'Official website of Seven Star English Boarding School. School information, notices, admissions, activities, gallery and results.', group: 'seo', label: 'SEO Description', type: 'string', isPublic: true, order: 3 },
-    { key: 'seo.metaKeywords', value: ['Seven Star English Boarding School', 'Devdaha', 'Rupandehi', 'Nepal', 'school'], group: 'seo', label: 'Default Meta Keywords', type: 'json', isPublic: true, order: 4 },
+    
+    // SEO
+    { key: 'seo.metaTitle', value: 'Seven Star English Boarding School - Devdaha, Rupandehi', group: 'seo', label: 'Default Meta Title', type: 'string', isPublic: true, order: 1 },
+    { key: 'seo.metaDescription', value: 'Seven Star English Boarding School, Devdaha-2, Rupandehi, Nepal. NEB Affiliated +2 Programs. Quality Education from Nursery to Grade 12.', group: 'seo', label: 'Default Meta Description', type: 'string', isPublic: true, order: 2 },
+    { key: 'seo.metaKeywords', value: ['Seven Star School', 'Devdaha', 'Rupandehi', 'Nepal', 'Education', 'Boarding School', '+2'], group: 'seo', label: 'Default Meta Keywords', type: 'json', isPublic: true, order: 3 },
   ];
 
   for (const setting of defaults) {

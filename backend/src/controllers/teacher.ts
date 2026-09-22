@@ -193,24 +193,29 @@ export const approveTeacher = asyncHandler(async (req: AuthRequest, res: Respons
   }
 
   teacher.isApproved = true;
+  teacher.status = 'active';
   teacher.approvedBy = req.userId as any;
   teacher.approvedAt = new Date();
   await teacher.save();
 
   const user = await User.findById(teacher.user);
   if (user) {
-    await sendEmail({
-      to: user.email,
-      subject: 'Teacher Account Approved - Seven Star School',
-      html: `
-        <h2>Welcome to Seven Star School!</h2>
-        <p>Your teacher account has been approved.</p>
-        <p><strong>Employee ID:</strong> ${teacher.employeeId}</p>
-        <p><strong>Designation:</strong> ${teacher.designation}</p>
-        <p><strong>Department:</strong> ${teacher.department}</p>
-        <p>You can now login and access your dashboard.</p>
-      `,
-    });
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Teacher Account Approved - Seven Star School',
+        html: `
+          <h2>Welcome to Seven Star School!</h2>
+          <p>Your teacher account has been approved.</p>
+          <p><strong>Employee ID:</strong> ${teacher.employeeId}</p>
+          <p><strong>Designation:</strong> ${teacher.designation}</p>
+          <p><strong>Department:</strong> ${teacher.department}</p>
+          <p>You can now login and access your dashboard.</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error('Teacher approved, but approval email failed:', emailError);
+    }
   }
 
   res.json({

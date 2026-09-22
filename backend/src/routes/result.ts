@@ -18,7 +18,7 @@ router.get('/sheet', authorize('admin', 'teacher'), getResultSheet);
 router.get('/:id', authorize('admin', 'teacher', 'student', 'parent'), getResult);
 router.put('/:id', authorize('admin', 'teacher'), validate(updateResultSchema), updateResult);
 router.post('/:id/verify', authorize('admin'), validate(verifyResultSchema), verifyResult);
-router.post('/:id/publish', authorize('admin', 'teacher'), validate(publishResultSchema), publishResult);
+router.post('/:id/publish', authorize('admin'), validate(publishResultSchema), publishResult);
 router.delete('/:id', authorize('admin'), deleteResult);
 
 export default router;

@@ -1,6 +1,4 @@
 import authRoutes from './auth';
-import adminRoutes from './admin';
-import userRoutes from './user';
 import teacherRoutes from './teacher';
 import studentRoutes from './student';
 import classRoutes from './class';
@@ -20,8 +18,6 @@ import settingRoutes from './setting';
 
 const routes = [
   { path: '/auth', router: authRoutes },
-  { path: '/admins', router: adminRoutes },
-  { path: '/users', router: userRoutes },
   { path: '/teachers', router: teacherRoutes },
   { path: '/students', router: studentRoutes },
   { path: '/classes', router: classRoutes },

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: sevenstar-school-api
+    name: seven-star-api
     runtime: node
     rootDir: backend
     buildCommand: npm ci && npm run build
@@ -34,19 +34,9 @@ services:
         value: School Administrator
       - key: ADMIN_PASSWORD
         sync: false
-      - key: EMAIL_HOST
-        sync: false
-      - key: EMAIL_PORT
-        value: 587
-      - key: EMAIL_USER
-        sync: false
-      - key: EMAIL_PASS
-        sync: false
-      - key: EMAIL_FROM
-        sync: false
 
   - type: web
-    name: sevenstar-school-web
+    name: seven-star-web
     runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build

@@ -14,4 +14,4 @@ export * from './Achievement';
 export * from './Facility';
 export * from './Suggestion';
 export * from './Contact';
-export * from './Setting';export * from './Admin';
+export * from './Setting';

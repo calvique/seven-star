@@ -1,5 +1,4 @@
-import axios, { isAxiosError } from 'axios';
-import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import type { User, PaginatedResponse, SingleResponse, SchoolSettings } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -37,9 +36,9 @@ class ApiService {
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
           try {
@@ -66,9 +65,7 @@ class ApiService {
     }
 
     this.refreshTokenPromise = (async () => {
-      const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
-        withCredentials: true,
-      });
+      const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
 
       const { accessToken } = response.data.data;
       localStorage.setItem('accessToken', accessToken);
@@ -131,8 +128,8 @@ class ApiService {
     return this.client.post('/auth/resend-verification', { email });
   }
 
-  private setAuth(data: { user: User; accessToken: string | null }) {
-    if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
+  private setAuth(data: { user: User; accessToken: string }) {
+    localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('user', JSON.stringify(data.user));
     // refreshToken is set via httpOnly cookie
   }

@@ -9,7 +9,6 @@ export const validate = (schema: ZodSchema) =>
         body: req.body,
         query: req.query,
         params: req.params,
-        cookies: (req as Request & { cookies?: Record<string, unknown> }).cookies,
       });
       next();
     } catch (error) {

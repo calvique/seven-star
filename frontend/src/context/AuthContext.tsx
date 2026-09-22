@@ -7,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  register: (data: { name: string; email: string; password: string; phone?: string; role?: string }) => Promise<void>;
+  register: (data: { name: string; email: string; password: string; phone?: string; role?: string }) => Promise<{ pendingApproval?: boolean }>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, password: string) => Promise<void>;
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string, rememberMe?: boolean) => {
     const response = await api.login({ email, password, rememberMe });
-    if (response.success && response.data?.user && response.data?.accessToken) {
+    if (response.success && response.data?.user) {
       setUser(response.data.user);
     }
   };
@@ -62,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (response.success && response.data?.user && response.data?.accessToken) {
       setUser(response.data.user);
     }
+    return { pendingApproval: Boolean(response.data?.pendingApproval) };
   };
 
   const logout = async () => {

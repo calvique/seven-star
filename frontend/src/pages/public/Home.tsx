@@ -1,91 +1,261 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Bell, Camera, GraduationCap, MapPin, MessageSquare, Search, Trophy } from 'lucide-react';
-import { Badge, Button, Card } from '../../components/ui';
-import { SiteSeo } from '../../components/seo/SiteSeo';
+import { Helmet } from 'react-helmet-async';
+import { ArrowRight, GraduationCap, Award, Users, BookOpen, Shield, MapPin, Phone, Mail } from 'lucide-react';
+import { Button, Card, Badge } from '../../components/ui';
 import { useSettings } from '../../context/SettingsContext';
-import { api } from '../../services/api';
 
 export function Home() {
   const { getSettingValue } = useSettings();
-  const [notices, setNotices] = useState<any[]>([]);
-  const [activities, setActivities] = useState<any[]>([]);
-  const [gallery, setGallery] = useState<any[]>([]);
 
   const schoolName = getSettingValue('general', 'school.name', 'Seven Star English Boarding School');
-  const tagline = getSettingValue('general', 'school.tagline', 'Official school information and updates');
+  const tagline = getSettingValue('general', 'school.tagline', 'Shaping Future Leaders');
+  const established = getSettingValue('general', 'school.established', '2063 B.S.');
   const address = getSettingValue('general', 'school.address', 'Devdaha-2, Rupandehi, Nepal');
-  const heroImage = getSettingValue('general', 'school.heroImage', '');
-  const intro = getSettingValue('about', 'school.intro', 'School information, announcements, programmes and resources are maintained by the administration through the CMS.');
+  const phone = getSettingValue('general', 'school.phone', '9857078448');
+  const email = getSettingValue('general', 'school.email', 'sevenstar.school2063@gmail.com');
 
-  useEffect(() => {
-    Promise.allSettled([
-      api.get('/notices/latest', { limit: 4 }),
-      api.get('/activities/published', { limit: 4 }),
-      api.get('/galleries/published', { limit: 6 }),
-    ]).then(([n, a, g]) => {
-      if (n.status === 'fulfilled') setNotices(n.value.data?.notices || []);
-      if (a.status === 'fulfilled') setActivities(a.value.data?.activities || []);
-      if (g.status === 'fulfilled') setGallery(g.value.data?.galleries || []);
-    });
-  }, []);
+  const features = [
+    {
+      icon: Award,
+      title: 'Academic Excellence',
+      description: 'NEB affiliated +2 programs with consistent 100% SEE pass rate and outstanding board results.',
+    },
+    {
+      icon: Users,
+      title: 'Experienced Faculty',
+      description: '80+ qualified teachers with B.Ed/M.Ed degrees dedicated to student success.',
+    },
+    {
+      icon: BookOpen,
+      title: 'Modern Infrastructure',
+      description: 'Well-equipped labs, library, computer lab, sports complex, and auditorium.',
+    },
+    {
+      icon: Shield,
+      title: 'Safe Environment',
+      description: 'Secure boarding facilities with 24/7 supervision, CCTV, and medical support.',
+    },
+  ];
+
+  const stats = [
+    { value: '900+', label: 'Students Enrolled', icon: Users },
+    { value: '100%', label: 'SEE Pass Rate', icon: Award },
+    { value: '80+', label: 'Qualified Teachers', icon: GraduationCap },
+    { value: '19+', label: 'Years of Excellence', icon: Award },
+  ];
+
+  const quickLinks = [
+    { label: 'Admissions Open', path: '/admissions', icon: ArrowRight, variant: 'primary' },
+    { label: 'View Results', path: '/results', icon: ArrowRight, variant: 'outline' },
+    { label: 'Latest Notices', path: '/notices', icon: ArrowRight, variant: 'ghost' },
+    { label: 'Photo Gallery', path: '/gallery', icon: ArrowRight, variant: 'ghost' },
+  ];
 
   return (
     <>
-      <SiteSeo title="Home" description={`Official website of ${schoolName}. School information, notices, admissions, activities, gallery and results.`} />
-      <section className="relative overflow-hidden bg-primary-900 text-white">
-        {heroImage && <img src={heroImage} alt="School campus" className="absolute inset-0 w-full h-full object-cover opacity-30" loading="eager" />}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900/90 to-primary-700/70" />
-        <div className="relative container-custom py-24 lg:py-36">
-          <div className="max-w-4xl">
-            <Badge variant="secondary" className="mb-5">Seven Star Boarding School</Badge>
-            <h1 className="font-heading font-bold text-4xl md:text-6xl lg:text-7xl leading-tight">{schoolName}</h1>
-            <p className="mt-5 text-xl text-primary-100 max-w-2xl">{tagline}</p>
-            <p className="mt-4 text-primary-100 max-w-2xl">{intro}</p>
-            <div className="flex flex-wrap gap-3 mt-8">
-              <Link to="/admissions"><Button size="lg">Admissions <ArrowRight className="w-4 h-4 ml-2" /></Button></Link>
-              <Link to="/results"><Button size="lg" variant="outline" className="bg-white/10 text-white border-white/30">Class 11 & 12 Results <Search className="w-4 h-4 ml-2" /></Button></Link>
+      <Helmet>
+        <title>{schoolName} - {tagline} | Devdaha, Rupandehi, Nepal</title>
+        <meta name="description" content={`${schoolName} - ${tagline}. NEB Affiliated +2 Programs. Quality Education from Nursery to Grade 12 with 100% SEE Pass Rate. Devdaha-2, Rupandehi, Nepal.`} />
+        <meta name="keywords" content="Seven Star School, Devdaha, Rupandehi, Nepal, Education, Boarding School, +2, SEE, NEB" />
+        <meta property="og:title" content={`${schoolName} - ${tagline}`} />
+        <meta property="og:description" content="NEB Affiliated +2 Programs. Quality Education from Nursery to Grade 12 with 100% SEE Pass Rate." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href="https://sevenstar.edu.np/" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'EducationalOrganization',
+            name: schoolName,
+            description: tagline,
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: address,
+              addressLocality: 'Devdaha',
+              addressRegion: 'Rupandehi',
+              addressCountry: 'NP',
+            },
+            telephone: phone,
+            email: email,
+            foundingDate: '2006', // 2063 BS = 2006 AD
+            url: 'https://sevenstar.edu.np/',
+            sameAs: [
+              'https://www.facebook.com/sevenstar.boarding',
+            ],
+          })}
+        </script>
+      </Helmet>
+
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width%3D%2260%22 height%3D%2260%22 viewBox%3D%220 0 60 60%22 xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg fill%3D%22none%22 fill-rule%3D%22evenodd%22%3E%3Cg fill%3D%22%239C92AC%22 fill-opacity%3D%220.03%22%3E%3Cpath d%3D%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="animate-fade-in">
+              <Badge variant="accent" className="mb-6 inline-flex items-center gap-2">
+                <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse" />
+                Admissions Open for 2082 B.S. (2025/26)
+              </Badge>
+              <h1 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl leading-tight text-gray-900 mb-6">
+                {tagline}
+                <br />
+                <span className="text-primary-600">With Quality Education</span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-xl">
+                {schoolName} has been committed to nurturing confident, disciplined and capable learners since {established}. We combine academic excellence with character, creativity, and meaningful co-curricular experiences.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link to="/admissions">
+                  <Button size="lg" className="gap-2">
+                    Apply for Admission
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link to="/about">
+                  <Button size="lg" variant="outline" className="gap-2">
+                    Learn More About Us
+                  </Button>
+                </Link>
+              </div>
+              <div className="mt-10 flex flex-wrap gap-8">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                      <stat.icon className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="font-heading font-bold text-2xl text-gray-900">{stat.value}</p>
+                      <p className="text-sm text-gray-500">{stat.label}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-2 mt-7 text-sm text-primary-100"><MapPin className="w-4 h-4" />{address}</div>
+
+            <div className="relative animate-slide-up">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white">
+                <div className="aspect-[4/3] bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center">
+                  <GraduationCap className="w-32 h-32 text-primary-200" />
+                </div>
+                <div className="absolute -bottom-6 -left-6 -right-6 bg-white rounded-2xl shadow-xl p-6 mx-6 max-w-md">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-accent-100 rounded-full flex items-center justify-center">
+                      <Award className="w-7 h-7 text-accent-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-lg text-gray-900">Academic Excellence Award</h3>
+                      <p className="text-sm text-gray-500">8 consecutive years of 100% SEE pass rate</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
 
-      <section className="section bg-white">
-        <div className="container-custom grid md:grid-cols-3 gap-5">
-          {[['Notices', Bell, '/notices', 'Read official announcements published by the school.'], ['Activities', Trophy, '/activities', 'Explore activities and student programmes published by the school.'], ['Gallery', Camera, '/gallery', 'View school photographs and albums published through the CMS.']].map(([label, Icon, path, text]) => {
-            const I = Icon as React.ElementType;
-            return <Link to={path as string} key={label as string}><Card className="h-full hover:-translate-y-1 transition-transform"><I className="w-8 h-8 text-primary-600" /><h2 className="mt-4 font-heading text-xl font-bold text-gray-900">{label as string}</h2><p className="mt-2 text-gray-600">{text as string}</p><span className="inline-flex mt-5 items-center text-primary-600 font-medium">Open <ArrowRight className="w-4 h-4 ml-1" /></span></Card></Link>;
-          })}
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <ArrowRight className="w-6 h-6 text-gray-400 rotate-90" />
         </div>
       </section>
 
-      <section className="section bg-gray-50">
-        <div className="container-custom grid lg:grid-cols-2 gap-8">
-          <Card>
-            <div className="flex items-center justify-between gap-4 mb-6"><h2 className="font-heading text-2xl font-bold">Latest Notices</h2><Link to="/notices" className="text-primary-600 text-sm font-medium">View all</Link></div>
-            {notices.length ? notices.map((notice) => <div key={notice._id} className="py-4 border-t border-gray-100"><Link to="/notices" className="font-semibold text-gray-900 hover:text-primary-600">{notice.title}</Link><p className="text-sm text-gray-500 mt-1">{notice.shortDescription || notice.description || ''}</p></div>) : <p className="text-gray-500">No published notices yet.</p>}
-          </Card>
-          <Card>
-            <div className="flex items-center justify-between gap-4 mb-6"><h2 className="font-heading text-2xl font-bold">Latest Activities</h2><Link to="/activities" className="text-primary-600 text-sm font-medium">View all</Link></div>
-            {activities.length ? activities.map((item) => <div key={item._id} className="py-4 border-t border-gray-100"><div className="font-semibold text-gray-900">{item.title}</div><p className="text-sm text-gray-500 mt-1">{item.shortDescription || item.description || ''}</p></div>) : <p className="text-gray-500">No published activities yet.</p>}
-          </Card>
-        </div>
-      </section>
-
+      {/* Features Section */}
       <section className="section bg-white">
         <div className="container-custom">
-          <div className="flex items-center justify-between mb-7"><div><p className="text-sm font-semibold text-primary-600 uppercase tracking-wide">Photo updates</p><h2 className="font-heading text-3xl font-bold">Gallery</h2></div><Link to="/gallery" className="inline-flex items-center gap-1 text-primary-600 font-medium">View gallery <ArrowRight className="w-4 h-4" /></Link></div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {gallery.length ? gallery.map((item) => <Link to="/gallery" key={item._id} className="aspect-[4/3] rounded-xl overflow-hidden bg-gray-100"><img src={item.coverImage || item.images?.[0]?.url || item.images?.[0] || '/favicon.svg'} alt={item.title || 'School gallery'} className="w-full h-full object-cover" loading="lazy" decoding="async" /></Link>) : <Card className="col-span-full text-center text-gray-500">No published gallery items yet.</Card>}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge variant="primary" className="mb-4">Why Choose Seven Star?</Badge>
+            <h2 className="font-heading font-bold text-3xl md:text-4xl text-gray-900 mb-4">
+              Building Future Leaders Through Excellence
+            </h2>
+            <p className="text-lg text-gray-600">
+              We provide a holistic education that goes beyond academics, fostering character, creativity, and leadership.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature) => (
+              <Card key={feature.title} hover className="h-full">
+                <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-4">
+                  <feature.icon className="w-7 h-7 text-primary-600" />
+                </div>
+                <h3 className="font-heading font-semibold text-xl text-gray-900 mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="section bg-primary-50">
-        <div className="container-custom grid md:grid-cols-2 gap-6">
-          <Link to="/suggestions"><Card className="h-full"><MessageSquare className="w-8 h-8 text-primary-600" /><h2 className="mt-4 font-heading text-xl font-bold">Suggestions</h2><p className="mt-2 text-gray-600">Share feedback or a suggestion with the administration.</p></Card></Link>
-          <Link to="/contact"><Card className="h-full"><GraduationCap className="w-8 h-8 text-primary-600" /><h2 className="mt-4 font-heading text-xl font-bold">Contact</h2><p className="mt-2 text-gray-600">Find official contact information and send an enquiry.</p></Card></Link>
+      {/* Quick Links */}
+      <section className="section bg-gray-50">
+        <div className="container-custom">
+          <div className="grid md:grid-cols-4 gap-6">
+            {quickLinks.map((link) => (
+              <Link key={link.path} to={link.path}>
+                <Card hover className="h-full text-center p-8 group">
+                  <div className="w-16 h-16 mx-auto bg-primary-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-600 group-hover:text-white transition-colors">
+                    <link.icon className="w-8 h-8 text-primary-600 group-hover:text-white transition-colors" />
+                  </div>
+                  <h3 className="font-heading font-semibold text-lg text-gray-900">{link.label}</h3>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="section bg-primary-600">
+        <div className="container-custom text-center">
+          <h2 className="font-heading font-bold text-3xl md:text-4xl text-white mb-4">
+            Ready to Join Seven Star Family?
+          </h2>
+          <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
+            Give your child the gift of quality education. Apply now for admission to Seven Star English Boarding School.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/admissions">
+              <Button size="lg" variant="secondary" className="gap-2">
+                Start Application
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 gap-2">
+                Contact Us
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Info Bar */}
+      <section className="bg-gray-900 text-white py-6">
+        <div className="container-custom">
+          <div className="grid md:grid-cols-3 gap-6 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3">
+              <MapPin className="w-6 h-6 text-secondary-400" />
+              <div>
+                <p className="font-medium">Visit Us</p>
+                <p className="text-sm text-gray-400">{address}</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center md:justify-center gap-3">
+              <Phone className="w-6 h-6 text-secondary-400" />
+              <div>
+                <p className="font-medium">Call Us</p>
+                <a href={`tel:${phone}`} className="text-sm text-gray-400 hover:text-white transition-colors">{phone}</a>
+              </div>
+            </div>
+            <div className="flex items-center justify-center md:justify-end gap-3">
+              <Mail className="w-6 h-6 text-secondary-400" />
+              <div>
+                <p className="font-medium">Email Us</p>
+                <a href={`mailto:${email}`} className="text-sm text-gray-400 hover:text-white transition-colors">{email}</a>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </>

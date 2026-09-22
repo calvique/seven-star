@@ -1,29 +1,187 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link,useLocation } from 'react-router-dom';
-import { Activity, BookOpen, Building2, Calendar, ClipboardList, FileText, GalleryHorizontalEnd, GraduationCap, LayoutDashboard, LogOut, Mail, Menu, MessageSquare, Settings, Trophy, UserPlus, Users, X } from 'lucide-react';
-import { Badge, Button, Card, Input, Spinner, Textarea } from '../../components/ui';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, GraduationCap, UserGroup, Building, BookOpen, FileText, ClipboardList, Megaphone, Images, UserPlus, Download, Calendar, Trophy, Building2, MessageSquare, Mail, Settings, LogOut, Menu, ChevronLeft, BarChart2, TrendingUp, Award, User, Bell } from 'lucide-react';
+import { Card, Badge, Button, Avatar, Dropdown, Table } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { api } from '../../services/api';
 
-const resources:any={
-  users:{label:'Users',path:'/users',key:'users',display:'email'},admins:{label:'Admins',path:'/admins',key:'admins',display:'email'},teachers:{label:'Teachers',path:'/teachers',key:'teachers',display:'employeeId'},students:{label:'Students',path:'/students',key:'students',display:'admissionNumber'},classes:{label:'Classes',path:'/classes',key:'classes',display:'name'},subjects:{label:'Subjects',path:'/subjects',key:'subjects',display:'name'},exams:{label:'Exams',path:'/exams',key:'exams',display:'name'},results:{label:'Results',path:'/results',key:'results',display:'_id'},notices:{label:'Notices',path:'/notices',key:'notices',display:'title'},galleries:{label:'Gallery',path:'/galleries',key:'galleries',display:'title'},admissions:{label:'Admissions',path:'/admissions',key:'admissions',display:'applicantName'},downloads:{label:'Downloads',path:'/downloads',key:'downloads',display:'title'},activities:{label:'Activities',path:'/activities',key:'activities',display:'title'},achievements:{label:'Achievements',path:'/achievements',key:'achievements',display:'title'},facilities:{label:'Facilities',path:'/facilities',key:'facilities',display:'name'},suggestions:{label:'Suggestions',path:'/suggestions',key:'suggestions',display:'subject'},contacts:{label:'Contacts',path:'/contacts',key:'contacts',display:'subject'},settings:{label:'Settings',path:'/settings',key:'settings',display:'label'},};
+export function AdminDashboard() {
+  const { getSettingValue } = useSettings();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-const nav=[['/admin','Dashboard',LayoutDashboard],['/admin/users','Users',Users],['/admin/teachers','Teachers',GraduationCap],['/admin/students','Students',Users],['/admin/classes','Classes',Building2],['/admin/subjects','Subjects',BookOpen],['/admin/exams','Exams',Calendar],['/admin/results','Results',ClipboardList],['/admin/notices','Notices',FileText],['/admin/galleries','Gallery',GalleryHorizontalEnd],['/admin/admissions','Admissions',UserPlus],['/admin/downloads','Downloads',FileText],['/admin/activities','Activities',Activity],['/admin/achievements','Achievements',Trophy],['/admin/facilities','Facilities',Building2],['/admin/suggestions','Suggestions',MessageSquare],['/admin/contacts','Contacts',Mail],['/admin/settings','Settings',Settings]] as any[];
+  const schoolName = getSettingValue('general', 'school.name', 'Seven Star English Boarding School');
 
-function firstArray(data:any,key:string){return Array.isArray(data?.[key])?data[key]:Object.values(data||{}).find((v:any)=>Array.isArray(v))||[]}
+  const navItems = [
+    { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { label: 'Users', path: '/admin/users', icon: Users },
+    { label: 'Teachers', path: '/admin/teachers', icon: GraduationCap },
+    { label: 'Students', path: '/admin/students', icon: UserGroup },
+    { label: 'Classes', path: '/admin/classes', icon: Building },
+    { label: 'Subjects', path: '/admin/subjects', icon: BookOpen },
+    { label: 'Exams', path: '/admin/exams', icon: FileText },
+    { label: 'Results', path: '/admin/results', icon: ClipboardList },
+    { label: 'Notices', path: '/admin/notices', icon: Megaphone },
+    { label: 'Galleries', path: '/admin/galleries', icon: Images },
+    { label: 'Admissions', path: '/admin/admissions', icon: UserPlus },
+    { label: 'Downloads', path: '/admin/downloads', icon: Download },
+    { label: 'Activities', path: '/admin/activities', icon: Calendar },
+    { label: 'Achievements', path: '/admin/achievements', icon: Trophy },
+    { label: 'Facilities', path: '/admin/facilities', icon: Building2 },
+    { label: 'Suggestions', path: '/admin/suggestions', icon: MessageSquare },
+    { label: 'Contacts', path: '/admin/contacts', icon: Mail },
+    { label: 'Settings', path: '/admin/settings', icon: Settings },
+  ];
 
-function ResourceManager({resource}:{resource:any}){
-  const [items,setItems]=useState<any[]>([]); const [loading,setLoading]=useState(true); const [selected,setSelected]=useState<any|null>(null); const [json,setJson]=useState(''); const [error,setError]=useState(''); const [search,setSearch]=useState('');
-  const load=async()=>{setLoading(true);setError('');try{const response=await api.get(resource.path,{page:1,limit:100});setItems(firstArray(response.data,resource.key))}catch(e:any){setError(e?.response?.data?.message||'Unable to load this resource.')}finally{setLoading(false)}};
-  useEffect(()=>{load()},[resource.path]);
-  const filtered=useMemo(()=>{const q=search.toLowerCase();return items.filter(i=>!q||JSON.stringify(i).toLowerCase().includes(q))},[items,search]);
-  const edit=(item:any)=>{setSelected(item);setJson(JSON.stringify(item,null,2));setError('')};
-  const create=()=>{setSelected({});setJson('{}');setError('')};
-  const save=async()=>{setError('');try{const payload=JSON.parse(json);if(selected?._id||selected?.id){await api.put(`${resource.path}/${selected._id||selected.id}`,payload)}else{await api.post(resource.path,payload)}await load();setSelected(null)}catch(e:any){setError(e?.response?.data?.message||e?.message||'Save failed. Check JSON and required fields.')}};
-  const remove=async(item:any)=>{if(!confirm('Deactivate/delete this record?'))return;try{await api.delete(`${resource.path}/${item._id||item.id}`);await load()}catch(e:any){setError(e?.response?.data?.message||'Delete failed.')}};
-  return <Card><div className="flex flex-wrap gap-3 justify-between items-end"><div><h2 className="font-heading text-2xl font-bold">{resource.label} CMS</h2><p className="text-gray-500">Create, inspect, edit and remove database records without changing source code.</p></div><div className="flex gap-2"><Input placeholder="Search records" value={search} onChange={e=>setSearch(e.target.value)}/><Button onClick={create}>New</Button><Button variant="outline" onClick={load}>Refresh</Button></div></div>{error&&<div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}{loading?<div className="flex justify-center py-16"><Spinner size="lg"/></div>:<div className="mt-6 overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left"><th className="py-3 pr-4">Record</th><th className="py-3 pr-4">ID</th><th className="py-3">Actions</th></tr></thead><tbody>{filtered.map(item=><tr key={item._id||item.id} className="border-b"><td className="py-3 pr-4 font-medium">{String(item[resource.display]??item.name??item.title??'Record')}</td><td className="py-3 pr-4 font-mono text-xs text-gray-500">{item._id||item.id}</td><td className="py-3 flex gap-2"><Button size="sm" variant="outline" onClick={()=>edit(item)}>Edit</Button><Button size="sm" variant="danger" onClick={()=>remove(item)}>Delete</Button></td></tr>)}{filtered.length===0&&<tr><td colSpan={3} className="py-12 text-center text-gray-500">No records found.</td></tr>}</tbody></table></div>}{selected!==null&&<div className="fixed inset-0 z-50 bg-black/60 p-4 flex items-center justify-center" onClick={()=>setSelected(null)}><Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={e=>e.stopPropagation()}><div className="flex justify-between items-center"><h3 className="font-heading text-xl font-bold">{selected._id?'Edit':'Create'} {resource.label.slice(0,-1)||resource.label}</h3><button onClick={()=>setSelected(null)}><X/></button></div><p className="text-sm text-gray-500 mt-1">Use valid JSON matching the API model. This editor keeps the CMS generic across all collections.</p><Textarea className="font-mono text-xs mt-5" rows={24} value={json} onChange={e=>setJson(e.target.value)}/><div className="flex justify-end gap-3 mt-4"><Button variant="outline" onClick={()=>setSelected(null)}>Cancel</Button><Button onClick={save}>Save</Button></div></Card></div>}</Card>
+  const stats = [
+    { label: 'Total Students', value: '942', change: '+12%', icon: UserGroup, color: 'primary' },
+    { label: 'Active Teachers', value: '78', change: '+3', icon: GraduationCap, color: 'secondary' },
+    { label: 'Published Notices', value: '24', change: '+5', icon: Megaphone, color: 'accent' },
+    { label: 'Pending Admissions', value: '18', change: '+7', icon: UserPlus, color: 'purple' },
+  ];
+
+  const recentActivities = [
+    { user: 'Mr. Tikaram Chapagain', action: 'Published notice', target: 'Exam Schedule 2082', time: '2 hours ago', icon: Megaphone, color: 'primary' },
+    { user: 'Mrs. Sarita Sharma', action: 'Submitted results', target: 'Class 10 Science', time: '4 hours ago', icon: ClipboardList, color: 'secondary' },
+    { user: 'Mr. Mohan Giri', action: 'Approved admission', target: 'ADM2024XYZ', time: '6 hours ago', icon: UserPlus, color: 'accent' },
+    { user: 'System', action: 'Backup completed', target: 'Database', time: '1 day ago', icon: Database, color: 'gray' },
+  ];
+
+  return (
+    <>
+      <Helmet>
+        <title>Admin Dashboard - {schoolName}</title>
+        <meta name="description" content="Admin dashboard for managing school operations, users, and content." />
+      </Helmet>
+
+      <div className="min-h-screen bg-gray-50">
+        {/* Mobile Sidebar Overlay */}
+        {mobileSidebarOpen && (
+          <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setMobileSidebarOpen(false)} />
+        )}
+
+        {/* Sidebar */}
+        <aside
+          className={`
+            fixed lg:static inset-y-0 left-0 z-50 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col
+            ${sidebarOpen ? 'w-64' : 'w-20'}
+            ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        >
+          <div className={`flex items-center gap-3 p-4 border-b border-gray-100 ${!sidebarOpen && 'justify-center'}`}>
+            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <GraduationCap className="w-6 h-6 text-white" />
+            </div>
+            {sidebarOpen && (
+              <div>
+                <h1 className="font-heading font-bold text-lg text-gray-900">{schoolName}</h1>
+                <p className="text-xs text-gray-500">Admin Panel</p>
+              </div>
+            )}
+          </div>
+
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            {navItems.map((item) => {
+              const isActive = false; // Would check current path
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-primary-50 text-primary-600'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  } ${!sidebarOpen && 'justify-center px-2'}`}
+                  title={sidebarOpen ? undefined : item.label}
+                >
+                  <item.icon className="w-5 h-5 flex-shrink-0" />
+                  {sidebarOpen && <span>{item.label}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="p-4 border-t border-gray-100">
+            {sidebarOpen ? (
+              <div className="flex items-center gap-3">
+                <Avatar src={user?.avatar} name={user?.name} size="sm" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
+                  <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                </div>
+              </div>
+            ) : (
+              <Avatar src={user?.avatar} name={user?.name} size="sm" className="mx-auto" />
+            )}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`mt-3 w-full p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors ${!sidebarOpen && 'mx-auto'}`}
+              aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              aria-expanded={sidebarOpen}
+            >
+              <ChevronLeft className={`w-5 h-5 ${sidebarOpen && 'rotate-180'}`} />
+            </button>
+          </div>
+        </aside>
+
+        <div className={`${sidebarOpen ? 'lg:pl-64' : 'lg:pl-20'} transition-all duration-300`}>
+          {/* Mobile Sidebar Overlay */}
+          {mobileSidebarOpen && (
+            <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setMobileSidebarOpen(false)} />
+          )}
+
+          {/* Top Bar */}
+          <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <button className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100" onClick={() => setMobileSidebarOpen(true)}>
+                  <Menu className="w-6 h-6" />
+                </button>
+                <h1 className="font-heading font-semibold text-xl text-gray-900 hidden sm:block">
+                  Admin Dashboard
+                </h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <button className="relative p-2 rounded-lg hover:bg-gray-100">
+                  <Bell className="w-5 h-5 text-gray-600" />
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                </button>
+                <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-gray-50 rounded-lg text-sm text-gray-600">
+                  <span className="font-medium text-gray-900">{user?.name}</span>
+                  <span className="px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full text-xs font-medium capitalize">{user?.role}</span>
+                </div>
+                <Dropdown
+                  trigger={
+                    <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                      <Avatar src={user?.avatar} name={user?.name} size="sm" />
+                    </button>
+                  }
+                  options={[
+                    { value: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
+                    { value: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
+                    { value: 'logout', label: 'Logout', icon: <LogOut className="w-4 h-4" />, danger: true },
+                  ]}
+                  onSelect={(value) => {
+                    if (value === 'logout') logout();
+                  }}
+                  align="right"
+                />
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <div className="p-6">
+            <Outlet />
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
-export function AdminDashboard(){const {user,logout}=useAuth();const {getSettingValue}=useSettings();const loc=useLocation();const schoolName=getSettingValue('general','school.name','Seven Star English Boarding School');const [sidebar,setSidebar]=useState(false);const slug=loc.pathname.replace('/admin/','').split('/')[0];const resource=resources[slug];const [counts,setCounts]=useState<Record<string,number>>({});useEffect(()=>{Promise.all(Object.entries(resources).slice(0,12).map(async([key,r]:any)=>{try{const x=await api.get(r.path,{page:1,limit:1});return [key,Number(x.data?.pagination?.total||x.data?.[r.key]?.length||0)] as const}catch{return [key,0] as const}})).then(x=>setCounts(Object.fromEntries(x)))},[]);return <><Helmet><title>Admin CMS | {schoolName}</title></Helmet><div className="min-h-screen bg-gray-50"><aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r ${sidebar?'translate-x-0':'-translate-x-full'} lg:translate-x-0 transition-transform`}><div className="p-4 border-b flex justify-between"><div><b>School CMS</b><p className="text-xs text-gray-500 mt-1">{user?.name}</p></div><button className="lg:hidden" onClick={()=>setSidebar(false)}><X/></button></div><nav className="p-3 space-y-1 overflow-y-auto h-[calc(100vh-80px)]">{nav.map(([path,label,Icon]:any)=><Link key={path} to={path} onClick={()=>setSidebar(false)} className={`flex items-center gap-3 p-2.5 rounded-lg text-sm ${loc.pathname===path?'bg-primary-50 text-primary-700':'text-gray-600 hover:bg-gray-100'}`}><Icon className="w-4 h-4"/>{label}</Link>)}<button onClick={logout} className="flex items-center gap-3 p-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 w-full mt-4"><LogOut className="w-4 h-4"/>Logout</button></nav></aside><main className="lg:pl-64"><header className="sticky top-0 z-30 bg-white border-b p-4 flex justify-between"><button className="lg:hidden" onClick={()=>setSidebar(true)}><Menu/></button><div><h1 className="font-heading font-bold text-xl">{resource?.label||'Dashboard'}</h1><p className="text-xs text-gray-500">Content is stored in MongoDB through the protected API.</p></div><Badge variant="primary">Administrator</Badge></header><div className="p-6">{resource?<ResourceManager resource={resource}/>:<div><div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">{[['teachers','Teachers',GraduationCap],['students','Students',Users],['notices','Notices',FileText],['admissions','Admissions',UserPlus]].map(([key,label,Icon]:any)=><Card key={key}><Icon className="text-primary-600"/><div className="text-3xl font-bold mt-3">{counts[key]??'—'}</div><p className="text-gray-500">{label}</p></Card>)}</div><Card className="mt-6"><h2 className="font-heading text-xl font-bold">CMS workflow</h2><p className="text-gray-600 mt-2">Use the left navigation to manage each collection. Teachers are approved and assigned here; result records are restricted by the backend to the teacher's approved class/subject scope.</p><div className="flex flex-wrap gap-3 mt-5"><Link to="/admin/teachers"><Button>Manage teachers</Button></Link><Link to="/admin/results"><Button variant="outline">Manage results</Button></Link></div></Card></div>}</div></main></div></>}
+// Need to import Database
+import { Database } from 'lucide-react';

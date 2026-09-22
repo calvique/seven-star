@@ -20,19 +20,6 @@ const calculateGrade = (percentage: number): { grade: string; gradePoint: number
   return { grade: 'F', gradePoint: 0 };
 };
 
-const getApprovedTeacher = async (req: AuthRequest) => {
-  if (req.user?.role !== 'teacher') return null;
-  const teacher = await Teacher.findOne({ user: req.userId, isApproved: true, status: 'active' });
-  if (!teacher) throw new ForbiddenError('Teacher account is not approved or active');
-  return teacher;
-};
-
-const ensureTeacherScope = (teacher: any, classId: string, subjectId: string) => {
-  const classAllowed = teacher.assignedClasses.some((id: any) => id.toString() === classId);
-  const subjectAllowed = teacher.assignedSubjects.some((id: any) => id.toString() === subjectId);
-  if (!classAllowed || !subjectAllowed) throw new ForbiddenError('You are not authorized for this class and subject');
-};
-
 export const createResult = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
   const { studentId, examId, subjectId, classId, academicYear, marksObtained, maxMarks, remarks } = req.body;
 
@@ -51,12 +38,9 @@ export const createResult = asyncHandler(async (req: AuthRequest, res: Response)
   const existingResult = await Result.findOne({ student: studentId, exam: examId, subject: subjectId });
   if (existingResult) throw new ConflictError('Result already exists for this student, exam, and subject');
 
-  const teacher = await getApprovedTeacher(req);
-  if (teacher) {
-    ensureTeacherScope(teacher, classId, subjectId);
-    if (student.class.toString() !== classId || exam.class.toString() !== classId || subject.class.toString() !== classId) {
-      throw new ForbiddenError('Student, exam, subject and class do not match');
-    }
+  const teacher = await Teacher.findOne({ user: req.userId });
+  if (teacher && !teacher.assignedSubjects.some(s => s.toString() === subjectId)) {
+    throw new ForbiddenError('You are not authorized to enter results for this subject');
   }
 
   const percentage = (marksObtained / maxMarks) * 100;
@@ -106,15 +90,9 @@ export const bulkCreateResults = asyncHandler(async (req: AuthRequest, res: Resp
   const classDoc = await Class.findById(classId);
   if (!classDoc) throw new NotFoundError('Class not found');
 
-  const teacher = await getApprovedTeacher(req);
-  if (teacher) {
-    ensureTeacherScope(teacher, classId, subjectId);
-    if (exam.class.toString() !== classId || subject.class.toString() !== classId) throw new ForbiddenError('Exam, subject and class do not match');
-    const studentIds = results.map((r: any) => r.studentId);
-    const students = await Student.find({ _id: { $in: studentIds }, class: classId });
-    if (students.length !== studentIds.length) throw new ForbiddenError('One or more students are outside your assigned class');
-    const publishedExists = await Result.exists({ student: { $in: studentIds }, exam: examId, subject: subjectId, isPublished: true });
-    if (publishedExists) throw new BadRequestError('One or more published results cannot be overwritten by a teacher');
+  const teacher = await Teacher.findOne({ user: req.userId });
+  if (teacher && !teacher.assignedSubjects.some(s => s.toString() === subjectId)) {
+    throw new ForbiddenError('You are not authorized to enter results for this subject');
   }
 
   const subjectExam = exam.subjects.find(s => s.subject.toString() === subjectId);
@@ -170,10 +148,9 @@ export const getResults = asyncHandler(async (req: AuthRequest, res: Response): 
   if (academicYear) query.academicYear = academicYear;
   if (isPublished !== undefined) query.isPublished = isPublished === 'true';
 
-  const teacher = await getApprovedTeacher(req);
-  if (teacher) {
+  const teacher = await Teacher.findOne({ user: req.userId });
+  if (teacher && req.user?.role === 'teacher') {
     query.subject = { $in: teacher.assignedSubjects };
-    query.class = { $in: teacher.assignedClasses };
   }
 
   const results = await Result.find(query)
@@ -222,8 +199,10 @@ export const getResult = asyncHandler(async (req: AuthRequest, res: Response): P
 
   if (!result) throw new NotFoundError('Result not found');
 
-  const teacher = await getApprovedTeacher(req);
-  if (teacher) ensureTeacherScope(teacher, result.class.toString(), result.subject.toString());
+  const teacher = await Teacher.findOne({ user: req.userId });
+  if (teacher && req.user?.role === 'teacher' && !teacher.assignedSubjects.some(s => s.toString() === result.subject.toString())) {
+    throw new ForbiddenError('Not authorized to view this result');
+  }
 
   res.json({
     success: true,
@@ -237,8 +216,10 @@ export const updateResult = asyncHandler(async (req: AuthRequest, res: Response)
   const result = await Result.findById(req.params.id);
   if (!result) throw new NotFoundError('Result not found');
 
-  const teacher = await getApprovedTeacher(req);
-  if (teacher) ensureTeacherScope(teacher, result.class.toString(), result.subject.toString());
+  const teacher = await Teacher.findOne({ user: req.userId });
+  if (teacher && req.user?.role === 'teacher' && !teacher.assignedSubjects.some(s => s.toString() === result.subject.toString())) {
+    throw new ForbiddenError('Not authorized to update this result');
+  }
 
   if (result.isPublished && req.user?.role !== 'admin') {
     throw new BadRequestError('Cannot modify published result');
@@ -300,9 +281,7 @@ export const publishResult = asyncHandler(async (req: AuthRequest, res: Response
   const result = await Result.findById(req.params.id);
   if (!result) throw new NotFoundError('Result not found');
 
-  const teacher = await getApprovedTeacher(req);
-  if (req.user?.role !== 'admin' && !teacher) throw new ForbiddenError('Only an approved admin or assigned teacher can publish results');
-  if (teacher) ensureTeacherScope(teacher, result.class.toString(), result.subject.toString());
+  if (req.user?.role !== 'admin') throw new ForbiddenError('Only admin can publish results');
 
   result.isPublished = true;
   result.publishedAt = new Date();
@@ -397,28 +376,48 @@ export const getResultSheet = asyncHandler(async (req: AuthRequest, res: Respons
 });
 
 export const searchResultByRoll = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
-  const { rollNumber, examId, academicYear, symbolNumber, classId } = req.query;
-  if (!rollNumber && !symbolNumber) throw new BadRequestError('Roll number or symbol number is required');
-  const query: any = {};
-  if (rollNumber) query.rollNumber = String(rollNumber);
-  if (symbolNumber) query.$or = [{ symbolNumber: String(symbolNumber) }, { admissionNumber: String(symbolNumber) }];
-  if (academicYear) query.academicYear = String(academicYear);
-  if (classId) query.class = String(classId);
-  const student = await Student.findOne(query);
-  if (!student) throw new NotFoundError('Student not found');
-  const studentClass = await Class.findById(student.class).select('name code grade section');
-  if (!studentClass || ![11, 12].includes(studentClass.grade)) {
-    throw new NotFoundError('This results portal is available for Class 11 and Class 12 only');
+  const { rollNumber, examId, academicYear, symbolNumber } = req.query;
+
+  if (!rollNumber && !symbolNumber) {
+    throw new BadRequestError('Roll number or symbol number is required');
   }
-  const resultQuery: any = { student: student._id, isPublished: true };
-  if (examId) resultQuery.exam = String(examId);
-  const results = await Result.find(resultQuery)
+
+  let student;
+  if (rollNumber) {
+    student = await Student.findOne({ rollNumber, academicYear: academicYear || { $exists: true } });
+  } else {
+    student = await Student.findOne({ $or: [{ symbolNumber }, { admissionNumber: symbolNumber }], academicYear: academicYear || { $exists: true } });
+  }
+
+  if (!student) throw new NotFoundError('Student not found');
+  const studentClass = await Class.findById(student.class).select('grade');
+  if (!studentClass || ![11, 12].includes(studentClass.grade)) {
+    throw new NotFoundError('The public results portal is only available for Class 11 and Class 12');
+  }
+
+  const query: any = { student: student._id, isPublished: true };
+  if (examId) query.exam = examId;
+
+  const results = await Result.find(query)
     .populate('exam', 'name type academicYear startDate')
     .populate('subject', 'name code')
     .populate('class', 'name code grade section')
-    .sort({ createdAt: -1 });
-  await Student.populate(student, [{ path: 'user', select: 'name' }, { path: 'class', select: 'name code grade section' }]);
-  res.json({ success:true, data:{ student:{ name:(student as any).user?.name || '', admissionNumber:student.admissionNumber, symbolNumber:(student as any).symbolNumber, rollNumber:student.rollNumber, class:student.class }, results } });
+    .sort({ 'exam.startDate': -1 });
+
+  await Student.populate(student, { path: 'user', select: 'name' });
+
+  res.json({
+    success: true,
+    data: {
+      student: {
+        name: (student as any).user?.name || '',
+        admissionNumber: student.admissionNumber,
+        rollNumber: student.rollNumber,
+        class: student.class,
+      },
+      results,
+    },
+  });
 });
 
 export const deleteResult = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {

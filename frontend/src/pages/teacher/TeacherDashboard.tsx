@@ -1,24 +1,145 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link,useLocation } from 'react-router-dom';
-import { BookOpen, Calendar, CheckCircle, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, Users, X } from 'lucide-react';
-import { Badge, Button, Card, Select, Input, Spinner } from '../../components/ui';
+import { Link, useNavigate, Outlet } from 'react-router-dom';
+import { LayoutDashboard, GraduationCap, Users, BookOpen, FileText, Settings, LogOut, Menu, X, ChevronDown, Bell, Award, ClipboardList, Calendar, User, ArrowRight } from 'lucide-react';
+import { Card, Badge, Button, Avatar, Dropdown, Table } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { api } from '../../services/api';
 
-export function TeacherDashboard(){
-  const {user,logout}=useAuth(); const {getSettingValue}=useSettings(); const location=useLocation(); const schoolName=getSettingValue('general','school.name','Seven Star English Boarding School');
-  const [profile,setProfile]=useState<any>(null); const [students,setStudents]=useState<any[]>([]); const [classes,setClasses]=useState<any[]>([]); const [subjects,setSubjects]=useState<any[]>([]); const [exams,setExams]=useState<any[]>([]); const [results,setResults]=useState<any[]>([]); const [loading,setLoading]=useState(true); const [sidebar,setSidebar]=useState(false); const [message,setMessage]=useState('');
-  const [form,setForm]=useState({classId:'',subjectId:'',examId:'',academicYear:'',marks:{} as Record<string,string>});
-  const load=async()=>{setLoading(true);try{const[p,s,c,e,r]=await Promise.all([api.getSingle<any>('/teachers/my-profile'),api.get('/students',{limit:200}),api.get('/classes',{limit:200}),api.get('/exams',{limit:100}),api.get('/results',{limit:100})]);setProfile(p.data?.teacher||p.data);setStudents(s.data?.students||[]);setClasses(c.data?.classes||[]);setExams(e.data?.exams||[]);setResults(r.data?.results||[]);const assigned=p.data?.teacher?.assignedSubjects||[];setSubjects(assigned);}catch(err){console.error(err)}finally{setLoading(false)}};
-  useEffect(()=>{load()},[]);
-  const assignedClassIds=useMemo(()=>new Set((profile?.assignedClasses||[]).map((x:any)=>x._id||x)),[profile]);
-  const teacherClasses=classes.filter(c=>assignedClassIds.has(c._id));
-  const teacherStudents=students.filter(s=>assignedClassIds.has(s.class?._id||s.class));
-  const selectedSubject=subjects.find(s=>s._id===form.subjectId); const eligibleStudents=teacherStudents.filter(s=>!form.classId||(s.class?._id||s.class)===form.classId);
-  const nav=[['/teacher','Dashboard',LayoutDashboard],['/teacher/classes','My Classes',Users],['/teacher/subjects','My Subjects',BookOpen],['/teacher/enter-results','Enter Results',FileText],['/teacher/view-results','View Results',CheckCircle],['/teacher/exams','Exam Schedule',Calendar]] as any[];
-  const isEntry=location.pathname.includes('enter-results'); const isView=location.pathname.includes('view-results');
-  const submitResults=async(e:React.FormEvent)=>{e.preventDefault();setMessage('');if(!form.classId||!form.subjectId||!form.examId){setMessage('Select class, subject and exam.');return}const exam=exams.find(x=>x._id===form.examId);const max=exam?.subjects?.find((x:any)=>(x.subject?._id||x.subject)===form.subjectId)?.maxMarks||100;const payload={examId:form.examId,subjectId:form.subjectId,classId:form.classId,academicYear:form.academicYear||exam?.academicYear||'',results:eligibleStudents.map(s=>({studentId:s._id,marksObtained:Number(form.marks[s._id]||0),maxMarks:max}))};try{await api.post('/results/bulk',payload);setMessage('Results saved as unpublished. Review and publish them from View Results.');load()}catch(err:any){setMessage(err?.response?.data?.message||'Unable to save results.')}};
-  const publish=async(id:string)=>{try{await api.post(`/results/${id}/publish`,{});setMessage('Result published.');load()}catch(err:any){setMessage(err?.response?.data?.message||'Unable to publish result.')}};
-  return <><Helmet><title>Teacher Portal | {schoolName}</title></Helmet><div className="min-h-screen bg-gray-50"><aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r lg:translate-x-0 ${sidebar?'translate-x-0':'-translate-x-full'} transition-transform`}><div className="p-4 border-b flex items-center justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center"><GraduationCap className="text-white"/></div><div><b>Teacher Portal</b><p className="text-xs text-gray-500">{user?.name}</p></div></div><button className="lg:hidden" onClick={()=>setSidebar(false)}><X/></button></div><nav className="p-4 space-y-1">{nav.map(([path,label,Icon]:any)=><Link key={path} to={path} onClick={()=>setSidebar(false)} className={`flex items-center gap-3 p-3 rounded-lg ${location.pathname===path?'bg-primary-50 text-primary-700':'text-gray-600 hover:bg-gray-100'}`}><Icon className="w-5 h-5"/>{label}</Link>)}</nav><div className="p-4 border-t"><button onClick={logout} className="flex items-center gap-2 text-gray-600"><LogOut className="w-4 h-4"/> Logout</button></div></aside><main className="lg:pl-64"><header className="sticky top-0 z-30 bg-white border-b p-4 flex justify-between"><button className="lg:hidden" onClick={()=>setSidebar(true)}><Menu/></button><div><h1 className="font-heading font-bold text-xl">{isEntry?'Enter Results':isView?'View Results':'Teacher Dashboard'}</h1><p className="text-xs text-gray-500">{profile?.isApproved?'Approved teacher account':'Pending approval'}</p></div><Badge variant={profile?.isApproved?'success':'warning'}>{profile?.isApproved?'Approved':'Pending'}</Badge></header><div className="p-6">{message&&<div className="mb-5 p-3 bg-blue-50 text-blue-700 rounded-lg">{message}</div>}{loading?<div className="flex justify-center py-20"><Spinner size="lg"/></div>:isEntry?<Card><h2 className="font-heading text-2xl font-bold">Enter class results</h2><p className="text-gray-500 mt-1">You can only enter results for classes and subjects assigned to your approved teacher account.</p><form onSubmit={submitResults} className="mt-6 space-y-5"><div className="grid md:grid-cols-4 gap-4"><Select label="Class" value={form.classId} onChange={e=>setForm({...form,classId:e.target.value})} options={teacherClasses.map(c=>({value:c._id,label:c.name}))} placeholder="Select class"/><Select label="Subject" value={form.subjectId} onChange={e=>setForm({...form,subjectId:e.target.value})} options={subjects.map(s=>({value:s._id,label:s.name}))} placeholder="Select subject"/><Select label="Exam" value={form.examId} onChange={e=>setForm({...form,examId:e.target.value})} options={exams.filter(x=>!form.classId||x.class?._id===form.classId||x.class===form.classId).map(x=>({value:x._id,label:`${x.name} (${x.academicYear})`}))} placeholder="Select exam"/><Input label="Academic Year" value={form.academicYear} onChange={e=>setForm({...form,academicYear:e.target.value})}/></div>{selectedSubject&&<div className="text-sm text-gray-500">Assigned subject: {selectedSubject.name}</div>}<div className="overflow-x-auto"><table className="w-full"><thead><tr className="border-b"><th className="text-left py-3">Student</th><th className="text-left py-3">Roll</th><th className="text-left py-3">Marks</th></tr></thead><tbody>{eligibleStudents.map(s=><tr key={s._id} className="border-b"><td className="py-3">{s.user?.name}</td><td>{s.rollNumber||'—'}</td><td><Input aria-label={`Marks for ${s.user?.name}`} type="number" min={0} value={form.marks[s._id]||''} onChange={e=>setForm({...form,marks:{...form.marks,[s._id]:e.target.value}})} /></td></tr>)}</tbody></table>{eligibleStudents.length===0&&<p className="py-8 text-center text-gray-500">Select a class to load assigned students.</p>}</div><Button type="submit" disabled={!profile?.isApproved||eligibleStudents.length===0}>Save Results</Button></form></Card>:isView?<Card><div className="flex justify-between items-center"><div><h2 className="font-heading text-2xl font-bold">My Results</h2><p className="text-gray-500">Only results inside your assigned scope are returned by the API.</p></div><Button variant="outline" onClick={load}>Refresh</Button></div><div className="overflow-x-auto mt-6"><table className="w-full text-sm"><thead><tr className="border-b text-left"><th className="py-3">Student</th><th>Exam</th><th>Subject</th><th>Marks</th><th>Status</th><th></th></tr></thead><tbody>{results.map(r=><tr key={r._id} className="border-b"><td className="py-3">{r.student?.user?.name||'—'}</td><td>{r.exam?.name||'—'}</td><td>{r.subject?.name||'—'}</td><td>{r.marksObtained}/{r.maxMarks}</td><td><Badge variant={r.isPublished?'success':'warning'}>{r.isPublished?'Published':'Draft'}</Badge></td><td>{!r.isPublished&&<Button size="sm" onClick={()=>publish(r._id)}>Publish</Button>}</td></tr>)}</tbody></table></div></Card>:<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5"><Card><Users className="text-primary-600"/><div className="text-3xl font-bold mt-3">{teacherClasses.length}</div><p className="text-gray-500">Assigned classes</p></Card><Card><BookOpen className="text-primary-600"/><div className="text-3xl font-bold mt-3">{subjects.length}</div><p className="text-gray-500">Assigned subjects</p></Card><Card><FileText className="text-primary-600"/><div className="text-3xl font-bold mt-3">{results.filter(r=>!r.isPublished).length}</div><p className="text-gray-500">Unpublished results</p></Card><Card><Calendar className="text-primary-600"/><div className="text-3xl font-bold mt-3">{exams.length}</div><p className="text-gray-500">Available exams</p></Card></div>}</div></main></div></>}
+export function TeacherDashboard() {
+  const { getSettingValue } = useSettings();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const schoolName = getSettingValue('general', 'school.name', 'Seven Star English Boarding School');
+
+  const navItems = [
+    { label: 'Dashboard', path: '/teacher', icon: LayoutDashboard },
+    { label: 'My Classes', path: '/teacher/classes', icon: Users },
+    { label: 'My Subjects', path: '/teacher/subjects', icon: BookOpen },
+    { label: 'Enter Results', path: '/teacher/enter-results', icon: FileText },
+    { label: 'View Results', path: '/teacher/view-results', icon: ClipboardList },
+    { label: 'Exam Schedule', path: '/teacher/exams', icon: Calendar },
+    { label: 'Profile', path: '/teacher/profile', icon: User },
+    { label: 'Settings', path: '/teacher/settings', icon: Settings },
+  ];
+
+  const stats = [
+    { label: 'Assigned Classes', value: '3', icon: Users, color: 'primary' },
+    { label: 'Assigned Subjects', value: '5', icon: BookOpen, color: 'secondary' },
+    { label: 'Pending Results', value: '12', icon: FileText, color: 'accent' },
+    { label: 'Upcoming Exams', value: '2', icon: Calendar, color: 'purple' },
+  ];
+
+  return (
+    <>
+      <Helmet>
+        <title>Teacher Dashboard - {schoolName}</title>
+        <meta name="description" content="Teacher dashboard for managing classes, subjects, and results." />
+      </Helmet>
+
+      <div className="min-h-screen bg-gray-50">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
+
+        {/* Sidebar */}
+        <aside className="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col">
+          <div className="flex items-center gap-3 p-4 border-b border-gray-100">
+            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <GraduationCap className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="font-heading font-bold text-lg text-gray-900">{schoolName}</h1>
+              <p className="text-xs text-gray-500">Teacher Portal</p>
+            </div>
+          </div>
+
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              >
+                <item.icon className="w-5 h-5" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="p-4 border-t border-gray-100">
+            <div className="flex items-center gap-3 mb-3">
+              <Avatar src={user?.avatar} name={user?.name} size="sm" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+              </div>
+            </div>
+            <Dropdown
+              trigger={
+                <button className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors">
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              }
+              options={[
+                { value: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
+                { value: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
+                { value: 'logout', label: 'Logout', icon: <LogOut className="w-4 h-4" />, danger: true },
+              ]}
+              onSelect={(value) => {
+                if (value === 'logout') logout();
+              }}
+            />
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <div className="lg:pl-64">
+          <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <button className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100" onClick={() => setSidebarOpen(true)}>
+                  <Menu className="w-6 h-6" />
+                </button>
+                <h1 className="font-heading font-semibold text-xl text-gray-900 hidden sm:block">Teacher Dashboard</h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <button className="relative p-2 rounded-lg hover:bg-gray-100">
+                  <Bell className="w-5 h-5 text-gray-600" />
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                </button>
+                <Dropdown
+                  trigger={
+                    <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                      <Avatar src={user?.avatar} name={user?.name} size="sm" />
+                    </button>
+                  }
+                  options={[
+                    { value: 'profile', label: 'My Profile', icon: <User className="w-4 h-4" /> },
+                    { value: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
+                    { value: 'logout', label: 'Logout', icon: <LogOut className="w-4 h-4" />, danger: true },
+                  ]}
+                  onSelect={(value) => {
+                    if (value === 'logout') logout();
+                  }}
+                  align="right"
+                />
+              </div>
+            </div>
+          </header>
+
+          <main className="p-6">
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Need to import useState
+import { useState } from 'react';

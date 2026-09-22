@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, GraduationCap, Award, Users, BookOpen } from 'lucide-react';
+import { clsx } from 'clsx';
+import { Facebook, Youtube, Instagram, Twitter, MapPin, Phone, Mail, GraduationCap, Award, Users, BookOpen } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 
 export function Footer() {
@@ -8,9 +9,11 @@ export function Footer() {
 
   const schoolName = getSettingValue('general', 'school.name', 'Seven Star English Boarding School');
   const tagline = getSettingValue('general', 'school.tagline', 'Shaping Future Leaders');
+  const established = getSettingValue('general', 'school.established', '2063 B.S.');
   const address = getSettingValue('general', 'school.address', 'Devdaha-2, Rupandehi, Nepal');
-  const phone = getSettingValue('general', 'school.phone', '');
-  const email = getSettingValue('general', 'school.email', '');
+  const phone = getSettingValue('general', 'school.phone', '9857078448');
+  const email = getSettingValue('general', 'school.email', 'sevenstar.school2063@gmail.com');
+  const officeHours = getSettingValue('general', 'school.officeHours', 'Sun - Fri: 9:00 AM - 5:00 PM');
   const facebookUrl = getSettingValue('social', 'social.facebook', 'https://www.facebook.com/sevenstar.boarding');
 
   const footerLinks = {
@@ -39,6 +42,12 @@ export function Footer() {
     ],
   };
 
+  const stats = [
+    { icon: Users, value: '900+', label: 'Students' },
+    { icon: Award, value: '100%', label: 'SEE Pass Rate' },
+    { icon: BookOpen, value: '80+', label: 'Qualified Teachers' },
+    { icon: Award, value: '19+', label: 'Years Excellence' },
+  ];
 
   return (
     <footer className="bg-gray-900 text-white" role="contentinfo">
@@ -56,7 +65,7 @@ export function Footer() {
               </div>
             </Link>
             <p className="text-gray-400 text-sm mb-6 max-w-xs">
-              Official school information, announcements and resources published by the administration.
+              A distinguished private educational institution located in Devdaha Municipality-2, Rupandehi District, Lumbini Province, Nepal. Committed to providing quality education since 2063 B.S.
             </p>
             <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
               <MapPin className="w-4 h-4 text-secondary-400" />
@@ -72,17 +81,31 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-4">
               <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-secondary-500 transition-colors" aria-label="Facebook">
-                <span className="text-xs font-bold">f</span>
+                <Facebook className="w-5 h-5" />
               </a>
               <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-secondary-500 transition-colors" aria-label="YouTube">
-                <span className="text-xs font-bold">▶</span>
+                <Youtube className="w-5 h-5" />
               </a>
               <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-secondary-500 transition-colors" aria-label="Instagram">
-                <span className="text-xs font-bold">ig</span>
+                <Instagram className="w-5 h-5" />
               </a>
               <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-secondary-500 transition-colors" aria-label="Twitter">
-                <span className="text-xs font-bold">x</span>
+                <Twitter className="w-5 h-5" />
               </a>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="hidden lg:block">
+            <h3 className="font-heading font-semibold text-lg mb-6">At a Glance</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {stats.map((stat) => (
+                <div key={stat.label} className="bg-gray-800/50 rounded-lg p-4 text-center">
+                  <stat.icon className="w-6 h-6 text-secondary-400 mx-auto mb-2" />
+                  <p className="font-heading font-bold text-2xl text-white">{stat.value}</p>
+                  <p className="text-xs text-gray-400">{stat.label}</p>
+                </div>
+              ))}
             </div>
           </div>
 

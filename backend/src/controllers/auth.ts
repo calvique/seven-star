@@ -27,44 +27,43 @@ export const register = asyncHandler(async (req: AuthRequest, res: Response): Pr
     throw new BadRequestError('Email already registered');
   }
 
-  const accountRole = role || 'student';
+  const requestedRole = role || 'student';
+  if (!['student', 'parent', 'teacher'].includes(requestedRole)) {
+    throw new BadRequestError('Invalid registration role');
+  }
+
   const user = await User.create({
     name,
     email,
     password,
     phone,
-    role: accountRole,
+    role: requestedRole,
   });
 
-  // Teacher self-registration creates a pending teacher profile. It cannot
-  // access the teacher portal until an administrator approves it.
-  if (accountRole === 'teacher') {
-    const stamp = Date.now().toString().slice(-8);
+  if (requestedRole === 'teacher') {
+    const employeeId = `PENDING-${Date.now().toString(36).toUpperCase()}`;
     await Teacher.create({
       user: user._id,
-      employeeId: `PENDING-${stamp}`,
-      designation: 'Pending verification',
+      employeeId,
+      designation: 'Pending approval',
       department: 'Pending assignment',
       qualification: [],
       experience: 0,
       dateOfJoining: new Date(),
       gender: 'other',
-      address: { permanent: 'To be updated by administration' },
-      emergencyContact: { name: name, relationship: 'Self', phone: phone || 'Not provided' },
+      address: { permanent: 'To be completed by administration' },
+      emergencyContact: { name, relationship: 'Self', phone: phone || 'Not provided' },
       assignedClasses: [],
       assignedSubjects: [],
       documents: { qualificationCertificates: [], experienceLetters: [], photo: '' },
       isApproved: false,
       status: 'inactive',
     });
+
     res.status(201).json({
       success: true,
-      message: 'Teacher registration received. An administrator must approve the account before login.',
-      data: {
-        user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, avatar: user.avatar },
-        accessToken: null,
-        pendingApproval: true,
-      },
+      message: 'Teacher registration received. Your account must be approved by an administrator before you can log in.',
+      data: { user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role, avatar: user.avatar }, accessToken: null, pendingApproval: true },
     });
     return;
   }
@@ -121,7 +120,7 @@ export const login = asyncHandler(async (req: AuthRequest, res: Response): Promi
   if (user.role === 'teacher') {
     const teacher = await Teacher.findOne({ user: user._id });
     if (!teacher || !teacher.isApproved || teacher.status !== 'active') {
-      throw new UnauthorizedError('Teacher account is awaiting admin approval or activation');
+      throw new UnauthorizedError('Teacher account is awaiting administrator approval or activation');
     }
   }
 

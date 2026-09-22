@@ -72,6 +72,8 @@ export interface IAdmission extends Document {
   interviewNotes?: string;
   admissionDate?: Date;
   rollNumber?: string;
+  studentUser?: mongoose.Types.ObjectId;
+  studentProfile?: mongoose.Types.ObjectId;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -171,6 +173,8 @@ const admissionSchema = new Schema<IAdmission>(
     interviewNotes: String,
     admissionDate: Date,
     rollNumber: String,
+    studentUser: { type: Schema.Types.ObjectId, ref: 'User' },
+    studentProfile: { type: Schema.Types.ObjectId, ref: 'Student' },
     notes: String,
   },
   {

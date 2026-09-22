@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { Menu, X, ChevronDown, GraduationCap, MapPin, Phone, Mail } from 'lucide-react';
+import { Menu, X, ChevronDown, GraduationCap, MapPin, Phone, Mail, Facebook, Youtube, Instagram } from 'lucide-react';
 import { Avatar, Dropdown, Badge, Button } from '../ui';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -61,8 +61,8 @@ export function Header() {
     { label: 'Downloads', path: '/downloads' },
   ];
 
-  const phone = getSettingValue('contact', 'school.phone', '');
-  const email = getSettingValue('contact', 'school.email', '');
+  const phone = getSettingValue('contact', 'school.phone', '9857078448');
+  const email = getSettingValue('contact', 'school.email', 'sevenstar.school2063@gmail.com');
   const address = getSettingValue('general', 'school.address', 'Devdaha-2, Rupandehi, Nepal');
   const facebookUrl = getSettingValue('social', 'social.facebook', 'https://www.facebook.com/sevenstar.boarding');
 
@@ -86,13 +86,13 @@ export function Header() {
         </div>
         <div className="flex items-center gap-4">
           <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-secondary-200 transition-colors" aria-label="Facebook">
-            <span className="text-xs font-bold">f</span>
+            <Facebook className="w-5 h-5" />
           </a>
           <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-secondary-200 transition-colors" aria-label="YouTube">
-            <span className="text-xs font-bold">▶</span>
+            <Youtube className="w-5 h-5" />
           </a>
           <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-secondary-200 transition-colors" aria-label="Instagram">
-            <span className="text-xs font-bold">ig</span>
+            <Instagram className="w-5 h-5" />
           </a>
         </div>
       </div>

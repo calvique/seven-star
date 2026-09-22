@@ -11,12 +11,10 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { Avatar, Dropdown } from '../ui';
 import { useAuth } from '../../context/AuthContext';
-import { SiteSeo } from '../seo/SiteSeo';
 
 export function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col">
-      <SiteSeo />
       <Header />
       <main className="flex-1 pt-32 lg:pt-28" id="main-content">
         <Outlet />

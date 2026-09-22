@@ -15,22 +15,36 @@ export const createAdmission = asyncHandler(async (req: AuthRequest, res: Respon
   const admissionNumber = `ADM${Date.now().toString(36).toUpperCase()}`;
 
   const admission = await Admission.create({
-    ...req.body,
+    academicYear: req.body.academicYear,
+    applyingForClass: req.body.applyingForClassId,
+    student: req.body.student,
+    father: req.body.father,
+    mother: req.body.mother,
+    guardian: req.body.guardian,
+    address: req.body.address,
+    documents: req.body.documents || {},
     admissionNumber,
   });
 
-  await sendEmail({
-    to: req.body.father.email || req.body.mother.email,
-    subject: 'Admission Application Received - Seven Star School',
-    html: `
-      <h2>Admission Application Received</h2>
-      <p>Thank you for applying to Seven Star English Boarding School.</p>
-      <p><strong>Admission Number:</strong> ${admissionNumber}</p>
-      <p><strong>Class Applied:</strong> ${classDoc.name}</p>
-      <p><strong>Student:</strong> ${req.body.student.firstName} ${req.body.student.lastName}</p>
-      <p>We will review your application and contact you soon.</p>
-    `,
-  });
+  const notificationEmail = req.body.father.email || req.body.mother.email;
+  if (notificationEmail) {
+    try {
+      await sendEmail({
+        to: notificationEmail,
+        subject: 'Admission Application Received - Seven Star School',
+        html: `
+          <h2>Admission Application Received</h2>
+          <p>Thank you for applying to Seven Star English Boarding School.</p>
+          <p><strong>Admission Number:</strong> ${admissionNumber}</p>
+          <p><strong>Class Applied:</strong> ${classDoc.name}</p>
+          <p><strong>Student:</strong> ${req.body.student.firstName} ${req.body.student.lastName}</p>
+          <p>We will review your application and contact you soon.</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error('Admission saved, but confirmation email failed:', emailError);
+    }
+  }
 
   res.status(201).json({
     success: true,
@@ -162,26 +176,31 @@ export const acceptAdmission = asyncHandler(async (req: AuthRequest, res: Respon
   const admission = await Admission.findById(req.params.id);
   if (!admission) throw new NotFoundError('Admission not found');
 
-  if (admission.status !== 'pending' && admission.status !== 'under-review') {
-    throw new BadRequestError('Admission must be pending or under review to accept');
+  if (admission.status === 'accepted' && admission.studentProfile) {
+    const student = await Student.findById(admission.studentProfile).populate('user', 'name email phone avatar').populate('class', 'name code grade section');
+    return void res.json({ success: true, message: 'Admission was already accepted', data: { admission, student } });
+  }
+
+  if (!['pending', 'under-review', 'interview-scheduled', 'waitlisted'].includes(admission.status)) {
+    throw new BadRequestError('Admission is not eligible for acceptance');
   }
 
   const classDoc = await Class.findById(admission.applyingForClass);
   if (!classDoc) throw new NotFoundError('Class not found');
+  if (classDoc.currentStrength >= classDoc.capacity) throw new BadRequestError('Class is at full capacity');
 
-  if (classDoc.currentStrength >= classDoc.capacity) {
-    throw new BadRequestError('Class is at full capacity');
-  }
+  const rollNumber = admission.rollNumber || `${classDoc.code}${String(classDoc.currentStrength + 1).padStart(3, '0')}`;
+  const generatedEmail = `${admission.admissionNumber.toLowerCase()}@student.sevenstar.local`;
+  const studentEmail = generatedEmail;
+  const temporaryPassword = `SS${Math.random().toString(36).slice(2, 8)}!${Math.floor(10 + Math.random() * 90)}`;
 
   const user = await User.create({
-    name: `${admission.student.firstName} ${admission.student.lastName}`,
-    email: admission.father.email || `${admission.admissionNumber.toLowerCase()}@sevenstar.edu.np`,
-    password: 'TempPass123!',
+    name: `${admission.student.firstName} ${admission.student.middleName ? admission.student.middleName + ' ' : ''}${admission.student.lastName}`.trim(),
+    email: studentEmail,
+    password: temporaryPassword,
     phone: admission.father.phone,
     role: 'student',
   });
-
-  const rollNumber = admission.rollNumber || `${classDoc.code}${String(classDoc.currentStrength + 1).padStart(3, '0')}`;
 
   const student = await Student.create({
     user: user._id,
@@ -219,31 +238,35 @@ export const acceptAdmission = asyncHandler(async (req: AuthRequest, res: Respon
   admission.rollNumber = rollNumber;
   admission.reviewedBy = new mongoose.Types.ObjectId(req.userId);
   admission.reviewedAt = new Date();
+  admission.studentUser = user._id;
+  admission.studentProfile = student._id;
   await admission.save();
 
   const email = admission.father.email || admission.mother.email;
-  if (!email) throw new BadRequestError('No email available for admission notification');
+  if (email) {
+    try {
+      await sendEmail({
+        to: email,
+        subject: 'Admission Accepted - Seven Star School',
+        html: `
+          <h2>Congratulations! Admission Accepted</h2>
+          <p>Dear ${admission.father.name},</p>
+          <p>Your child <strong>${admission.student.firstName} ${admission.student.lastName}</strong> has been accepted to <strong>${classDoc.name}</strong>.</p>
+          <p><strong>Admission Number:</strong> ${admission.admissionNumber}</p>
+          <p><strong>Roll Number:</strong> ${rollNumber}</p>
+          <p><strong>Student login:</strong> ${studentEmail}</p>
+          <p><strong>Temporary password:</strong> ${temporaryPassword}</p>
+          <p>Please change the temporary password after first login.</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error('Admission accepted, but notification email failed:', emailError);
+    }
+  }
 
-  await sendEmail({
-    to: email,
-    subject: 'Admission Accepted - Seven Star School',
-    html: `
-      <h2>Congratulations! Admission Accepted</h2>
-      <p>Dear ${admission.father.name},</p>
-      <p>Your child <strong>${admission.student.firstName} ${admission.student.lastName}</strong> has been accepted to <strong>${classDoc.name}</strong>.</p>
-      <p><strong>Admission Number:</strong> ${admission.admissionNumber}</p>
-      <p><strong>Roll Number:</strong> ${rollNumber}</p>
-      <p><strong>Username:</strong> ${user.email}</p>
-      <p><strong>Temporary Password:</strong> TempPass123!</p>
-      <p>Please login and change your password immediately.</p>
-    `,
-  });
-
-  res.json({
-    success: true,
-    message: 'Admission accepted and student created successfully',
-    data: { admission, student },
-  });
+  await student.populate('user', 'name email phone avatar');
+  await student.populate('class', 'name code grade section');
+  res.json({ success: true, message: 'Admission accepted and student account created successfully', data: { admission, student } });
 });
 
 export const getAdmissionStats = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {

@@ -71,7 +71,6 @@ export interface Student {
   _id: string;
   user: User;
   admissionNumber: string;
-  symbolNumber?: string;
   rollNumber?: string;
   class: Class;
   section?: string;
@@ -521,14 +520,17 @@ export interface Pagination {
   pages: number;
 }
 
-export interface PaginatedResponse<T = any> {
+export interface PaginatedResponse<T> {
   success: boolean;
-  data: any;
+  data: {
+    [key: string]: T[];
+    pagination: Pagination;
+  };
 }
 
-export interface SingleResponse<T = any> {
+export interface SingleResponse<T> {
   success: boolean;
-  data: T;
+  data: { [key: string]: T };
   message?: string;
 }
 
@@ -540,7 +542,6 @@ export interface ApiError {
 
 // School Settings (Public)
 export interface SchoolSettings {
-  [group: string]: Setting[] | undefined;
   general?: Setting[];
   contact?: Setting[];
   social?: Setting[];

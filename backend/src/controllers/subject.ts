@@ -31,6 +31,10 @@ export const createSubject = asyncHandler(async (req: AuthRequest, res: Response
     if (!teacher) {
       throw new NotFoundError('Teacher not found');
     }
+    if (!teacher.assignedSubjects.some(s => s.toString() === teacherId)) {
+      teacher.assignedSubjects.push(teacherId);
+      await teacher.save();
+    }
   }
 
   const subject = await Subject.create({
@@ -48,10 +52,6 @@ export const createSubject = asyncHandler(async (req: AuthRequest, res: Response
 
   classDoc.subjects.push(subject._id);
   await classDoc.save();
-
-  if (teacherId) {
-    await Teacher.findByIdAndUpdate(teacherId, { $addToSet: { assignedSubjects: subject._id } });
-  }
 
   await Subject.populate(subject, [
     { path: 'class', select: 'name code grade section' },
@@ -134,8 +134,8 @@ export const updateSubject = asyncHandler(async (req: AuthRequest, res: Response
       if (!teacher) {
         throw new NotFoundError('Teacher not found');
       }
-      if (!teacher.assignedSubjects.some(s => s.toString() === subject._id.toString())) {
-        teacher.assignedSubjects.push(subject._id);
+      if (!teacher.assignedSubjects.some(s => s.toString() === teacherId)) {
+        teacher.assignedSubjects.push(teacherId);
         await teacher.save();
       }
     }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SiteSeo } from '../../components/seo/SiteSeo';
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, Mail, User, Users, GraduationCap, FileText, CheckCircle, AlertCircle, Loader, ChevronLeft, ChevronRight, X, Download, Home, Building, Shield } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
+import { ArrowLeft, Calendar, Clock, MapPin, Phone, Mail, User, Users, GraduationCap, FileText, CheckCircle, AlertCircle, Loader, ChevronLeft, ChevronRight, X, Download, Home, Building, Star, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button, Input, Select, Textarea, Modal, Tabs, TabPanel } from '../../components/ui';
 import { useSettings } from '../../context/SettingsContext';
@@ -126,7 +126,65 @@ export function Admissions() {
     
     setSubmitting(true);
     try {
-      const res: any = await api.post('/admissions', formData);
+      const payload = {
+        academicYear: formData.academicYear.trim(),
+        applyingForClassId: formData.applyingForClass,
+        student: {
+          firstName: formData.firstName.trim(),
+          middleName: formData.middleName.trim() || undefined,
+          lastName: formData.lastName.trim(),
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          bloodGroup: formData.bloodGroup || undefined,
+          nationality: formData.nationality.trim() || 'Nepali',
+          religion: formData.religion.trim() || undefined,
+          motherTongue: formData.motherTongue.trim() || undefined,
+          previousSchool: formData.previousSchool.trim() || undefined,
+          previousClass: formData.previousClass.trim() || undefined,
+        },
+        father: {
+          name: formData.fatherName.trim(),
+          occupation: formData.fatherOccupation.trim() || undefined,
+          phone: formData.fatherPhone.trim(),
+          email: formData.fatherEmail.trim() || undefined,
+          officeAddress: formData.fatherOfficeAddress.trim() || undefined,
+        },
+        mother: {
+          name: formData.motherName.trim(),
+          occupation: formData.motherOccupation.trim() || undefined,
+          phone: formData.motherPhone.trim(),
+          email: formData.motherEmail.trim() || undefined,
+          officeAddress: formData.motherOfficeAddress.trim() || undefined,
+        },
+        guardian: (formData.guardianName || formData.guardianPhone || formData.guardianRelation || formData.guardianAddress) ? {
+          name: formData.guardianName.trim() || undefined,
+          relation: formData.guardianRelation.trim() || undefined,
+          phone: formData.guardianPhone.trim() || undefined,
+          address: formData.guardianAddress.trim() || undefined,
+        } : undefined,
+        address: {
+          permanent: {
+            province: formData.permanentProvince,
+            district: formData.permanentDistrict.trim(),
+            municipality: formData.permanentMunicipality.trim(),
+            ward: formData.permanentWard.trim(),
+            tole: formData.permanentTole.trim(),
+          },
+          temporary: (formData.tempProvince || formData.tempDistrict || formData.tempMunicipality || formData.tempWard || formData.tempTole) ? {
+            province: formData.tempProvince || undefined,
+            district: formData.tempDistrict.trim() || undefined,
+            municipality: formData.tempMunicipality.trim() || undefined,
+            ward: formData.tempWard.trim() || undefined,
+            tole: formData.tempTole.trim() || undefined,
+          } : undefined,
+        },
+      };
+
+      if (!payload.academicYear) {
+        throw new Error('Please enter the academic year before submitting.');
+      }
+
+      const res = await api.post('/admissions', payload);
       if (res.success) {
         setSubmitted(true);
         setAdmissionResult(res.data.admission);
@@ -158,31 +216,81 @@ export function Admissions() {
 
   return (
     <>
-      <SiteSeo title="Admissions" description={`Admission applications and official requirements published by ${schoolName}.`} />
+      <Helmet>
+        <title>Admissions - {schoolName}</title>
+        <meta name="description" content={`Admissions open at ${schoolName} for 2082 B.S. (2025/26). Apply online for Nursery to Grade 12 and +2 programs. Devdaha-2, Rupandehi, Nepal.`} />
+        <meta property="og:title" content={`Admissions - ${schoolName}`} />
+        <meta property="og:description" content="Admissions open for 2082 B.S. (2025/26). Apply online for Nursery to Grade 12 and +2 programs." />
+        <meta property="og:type" content="website" />
+      </Helmet>
 
       <div className="min-h-screen bg-white">
-        <section className="bg-gradient-to-br from-primary-700 via-primary-800 to-primary-950 text-white py-20 lg:py-28">
+        {/* Page Header */}
+        <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white py-20 lg:py-32">
           <div className="container-custom">
-            <Link to="/" className="inline-flex items-center gap-2 text-primary-100 hover:text-white mb-6"><ArrowLeft className="w-5 h-5" /> Back to Home</Link>
-            <Badge variant="secondary" className="mb-6">Online Admissions</Badge>
-            <h1 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl leading-tight">Admission application</h1>
-            <p className="text-lg md:text-xl text-primary-100 mt-5 max-w-3xl">Submit an admission enquiry using the online form. Admission dates, requirements, fees and published class availability are controlled by the administration.</p>
-            <div className="flex flex-wrap gap-5 mt-7 text-sm text-primary-100">
-              <span className="inline-flex items-center gap-2"><MapPin className="w-4 h-4" />{address}</span>
-              {phone && <span className="inline-flex items-center gap-2"><Phone className="w-4 h-4" />{phone}</span>}
-              {email && <span className="inline-flex items-center gap-2"><Mail className="w-4 h-4" />{email}</span>}
+            <div className="max-w-3xl">
+              <Link to="/" className="inline-flex items-center gap-2 text-primary-100 hover:text-white mb-6 transition-colors">
+                <ArrowLeft className="w-5 h-5" />
+                Back to Home
+              </Link>
+              <Badge variant="secondary" className="mb-6">Admissions Open 2082 B.S.</Badge>
+              <h1 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl leading-tight mb-6">
+                Join Seven Star Family
+              </h1>
+              <p className="text-lg md:text-xl text-primary-100 mb-8">
+                Quality education from Nursery to Grade 12 with NEB affiliated +2 programs.
+              </p>
+              <div className="flex flex-wrap gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  <span>Session: 2082 B.S. (2025/26)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-5 h-5" />
+                  <span>{phone}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  <span>{email}</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="section bg-gray-50">
+        {/* Admission Info Cards */}
+        <section className="section bg-gray-50 -mt-8">
           <div className="container-custom">
-            <Card>
-              <div className="flex items-start gap-4">
-                <GraduationCap className="w-9 h-9 text-primary-600 flex-shrink-0" />
-                <div><h2 className="font-heading font-bold text-xl">Published classes</h2><p className="text-gray-600 mt-2">{classes.length ? `${classes.length} active class${classes.length === 1 ? '' : 'es'} are currently available in the public academic structure.` : 'No classes have been published for applications yet.'}</p></div>
-              </div>
-            </Card>
+            <div className="grid md:grid-cols-4 gap-6 mb-12">
+              <Card className="text-center">
+                <div className="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <GraduationCap className="w-7 h-7 text-primary-600" />
+                </div>
+                <h3 className="font-heading font-bold text-xl text-gray-900 mb-1">Nursery to Grade 12</h3>
+                <p className="text-sm text-gray-500">Complete schooling journey</p>
+              </Card>
+              <Card className="text-center">
+                <div className="w-14 h-14 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Building className="w-7 h-7 text-secondary-600" />
+                </div>
+                <h3 className="font-heading font-bold text-xl text-gray-900 mb-1">NEB +2 Programs</h3>
+                <p className="text-sm text-gray-500">Science, Management, Hotel Mgmt</p>
+              </Card>
+              <Card className="text-center">
+                <div className="w-14 h-14 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Star className="w-7 h-7 text-accent-600" />
+                </div>
+                <h3 className="font-heading font-bold text-xl text-gray-900 mb-1">100% SEE Pass Rate</h3>
+                <p className="text-sm text-gray-500">8 consecutive years</p>
+              </Card>
+              <Card className="text-center">
+                <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Shield className="w-7 h-7 text-purple-600" />
+                </div>
+                <h3 className="font-heading font-bold text-xl text-gray-900 mb-1">Boarding Facility</h3>
+                <p className="text-sm text-gray-500">Safe & secure campus</p>
+              </Card>
+            </div>
           </div>
         </section>
 
@@ -194,10 +302,10 @@ export function Admissions() {
                 <div className="text-center mb-10">
                   <Badge variant="primary" className="mb-4">Online Application</Badge>
                   <h2 className="font-heading font-bold text-3xl md:text-4xl text-gray-900 mb-4">
-                    Submit an Admission Application
+                    Apply for Admission 2082 B.S.
                   </h2>
                   <p className="text-lg text-gray-600">
-                    Complete the application in the steps shown below. Required fields are validated before submission.
+                    Complete the application in 4 simple steps. All fields marked with * are required.
                   </p>
                 </div>
 
@@ -548,7 +656,7 @@ export function Admissions() {
                           label="Academic Year"
                           value={formData.academicYear}
                           onChange={(e) => setFormData({...formData, academicYear: e.target.value})}
-                          placeholder="Academic year, if announced"
+                          placeholder="2082 B.S. (2025/26)"
                         />
                       </div>
                       
