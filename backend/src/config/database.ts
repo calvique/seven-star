@@ -4,6 +4,9 @@ import { config } from './index';
 export const connectDB = async (): Promise<void> => {
   try {
     const uri = config.mongodb.uri;
+    if (!uri) {
+      throw new Error('MONGODB_URI is missing. Add your MongoDB Atlas connection string to the Render backend environment variables.');
+    }
     
     const conn = await mongoose.connect(uri, {
       maxPoolSize: 10,
