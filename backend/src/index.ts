@@ -84,6 +84,13 @@ routes.forEach(({ path, router }) => {
   app.use(`/api${path}`, router);
 });
 
+// Serve the compiled Vite frontend assets (JS, CSS, images, favicon, etc.)
+// before falling back to index.html for React Router routes.
+app.use(express.static(frontendDist, {
+  index: false,
+  maxAge: config.env === 'production' ? '1d' : 0,
+}));
+
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({
